@@ -1,16 +1,16 @@
 # Note
 
-The structure of this project is based on the "Implementing Microservices with Akka"
-Akka tutorial (https://doc.akka.io/guide/microservices-tutorial/index.html), and more
-specifically on the Event Sourced Cart entity and the corresponding gRPC Cart service
-or that tutorial.
+The structure of this project is based on the ["Implementing Microservices with Akka"](https://doc.akka.io/guide/microservices-tutorial/index.html)
+Akka tutorial, and more specifically on the [Event Sourced Cart entity](https://doc.akka.io/guide/microservices-tutorial/entity.html)
+and the corresponding [gRPC Cart service](https://doc.akka.io/guide/microservices-tutorial/grpc-service.html) of that tutorial.
 
 # Running the order service
 
 * Install docker, docker compose and maven.
 
-* Start PostgreSQL DB, required for persistence of the event store. This also starts a container
-  that runs an Apache Tomcat instance that simulates two courier delivery booking APIs
+* Start some docker containers in order to run a PostgreSQL DB (required for persistence
+  of the event store), as well as an Apache Tomcat instance that simulates two courier delivery booking APIs
+  (executed when you run the PackItems endpoint)
 
 ```
 docker-compose up -d
@@ -46,17 +46,21 @@ mvn compile exec:exec -DAPP_CONFIG=local2.conf
 curl http://localhost:9101/ready
 ```
 
-# Executing Running the APIs
+# Executing the Endpoints
 
 ##Notes
 
+1. The **grpcurl** tool is required for making gRPC calls from the command line (you can't use curl).
 1. If you don't have **grpcurl** on your machine, you can use **docker run fullstorydev/grpcurl**
-instead of **grpcurl**. In that case you also need to change **127.0.0.1** to **host.docker.internal** in the following examples in order to communicate with the local service.
-2. If you are running the command in a Windows shell, you might have to escape the quotes. For example - **"""itemId"""** instead of **"itemId"**.
+instead of **grpcurl**. In that case, you'll also need to change **127.0.0.1** to **host.docker.internal** in the following examples in order to communicate with the local service.
+2. If you are running the command in a Windows shell, you may have to escape the double quotes. For example - use **"""itemId"""** instead of **"itemId"**.
 
 ##API examples
 
 ###1. Receive Order:
+
+This creates a new Order for the given order identifier, if one doesn't already exist. It will fail if the Order already exists for the given identifier. It persists an **OrderReceived**
+event, and triggers asynchronous creation of allocations for the order. When the allocations are created, an **OrderAllocationsReceived** event is persisted.
 
 	grpcurl -d '{"order_id":"order1","items":[{"item_id":"234323","name":"coke","quantity":5},{"item_id":"353464","name":"sugar","quantity":3},{"item_id":"46758543","name":"bread","quantity":2}], "customer":{"first_name":"Eran","last_name":"Eyal","address":{"street":"Some Street 42","city":"Some City","zip_code":12345,"country":"Israel"},"email":"somebody@gmail.com","mobile_phone":"0521234567"}}' -plaintext 127.0.0.1:8101 OrderService.OrderService.ReceiveOrder
 
@@ -69,6 +73,8 @@ instead of **grpcurl**. In that case you also need to change **127.0.0.1** to **
 ```
 
 ###2. Fetch Order Details:
+
+This returns the complete order details along with its allocations.
 
 	grpcurl -d '{"order_id":"order1"}' -plaintext 127.0.0.1:8101 OrderService.OrderService.FetchOrderDetails
 
@@ -149,13 +155,19 @@ instead of **grpcurl**. In that case you also need to change **127.0.0.1** to **
 
 ###3. Pack Items:
 
+If the given order allocation is already packed, the previously persisted tracking identifier is returned.
+Otherwise, a courier API is called to book delivery for the requested order allocation, and the items of this
+order allocation are marked as packed after successful response from the courier.
+An **OrderAllocationPacked** event, which records both the new status of the order allocation, and the tracking
+identifier returned by the courier API, is persisted in this case. The new tracking identifier is returned.
+
 	grpcurl -d '{"order_id":"order1","allocation_id":"1"}' -plaintext 127.0.0.1:8101 OrderService.OrderService.PackItems
 
 ###Successful Response:
 
 ```
 {
-    "ok": true
+  "tracking_id": "F711B1E2DD424E3ABD80DDFC88AC9264"
 }
 ```
 
@@ -182,14 +194,14 @@ instead of **grpcurl**. In that case you also need to change **127.0.0.1** to **
         }
       ],
       "courier": "DeliverIt",
-      "tracking_id": "F711B1E2DD424E3ABD80DDFC88AC9264",
+      "tracking_id": "F711B1E2DD424E3ABD80DDFC88AC9264", <--- the tracking identifier
       "statuses": [
         {
           "type": "ALLOCATED",
           "timestamp": "2024-07-28T08:56:30.941376900Z"
         },
         {
-          "type": "PACKED",
+          "type": "PACKED", <--- the new order allocation status
           "timestamp": "2024-07-28T09:10:08.288077700Z"
         }
       ]
@@ -241,6 +253,9 @@ instead of **grpcurl**. In that case you also need to change **127.0.0.1** to **
 
 ###4. Tracking Update:
 
+This updates the delivery status of an order allocation. It should be executed by the courier that delivers the items of an order allocation.
+It persists a **TrackingUpdated** event, which records the new status of the order allocation.
+
 	grpcurl -d '{"order_id":"order1","allocation_id":"1","status":"PICKED_BY_COURIER"}' -plaintext 127.0.0.1:8101 OrderService.OrderService.TrackingUpdate
 
 ###Successful Response:
@@ -290,7 +305,7 @@ instead of **grpcurl**. In that case you also need to change **127.0.0.1** to **
           "timestamp": "2024-07-28T09:10:08.288077700Z"
         },
         {
-          "type": "PICKED_BY_COURIER",
+          "type": "PICKED_BY_COURIER", <--- the new order allocation status
           "timestamp": "2024-07-28T09:12:45.428948400Z"
         }
       ]

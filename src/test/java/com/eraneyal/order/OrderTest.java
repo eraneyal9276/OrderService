@@ -200,12 +200,12 @@ public class OrderTest
 		assertEquals (Allocation.Status.ALLOCATED,
 					  result2.reply ().getAllocation (allocationID).getLatestAllocationStatus ());
 // -- pack items
-		CommandResultWithReply<Order.Command,Order.Event,Order.State,StatusReply<Done>>
+		CommandResultWithReply<Order.Command,Order.Event,Order.State,StatusReply<Order.PackOrderAllocationResult>>
 		    result3 =
 		    	eventSourcedTestKit.runCommand (
 		    		replyTo -> new Order.PackOrderAllocation (allocationID, replyTo));
 		assertTrue (result3.reply ().isSuccess ());
-		done = result3.reply ().getValue ();
+		Order.PackOrderAllocationResult packed = result3.reply ().getValue ();
 		assertTrue (result3.event () instanceof Order.OrderAllocationPacked);
 		Order.OrderAllocationPacked packedEvent = (Order.OrderAllocationPacked) result3.event ();
 		String trackingId = packedEvent.trackingId ();
@@ -215,6 +215,8 @@ public class OrderTest
 					  state.getLatestAllocationStatus (allocationID));
 		assertEquals (trackingId,
 				  	  state.getAllocation (allocationID).getTrackingId ());
+		assertEquals (trackingId,
+				 	  packed.trackingId ());
 	}
 
 /**
@@ -224,10 +226,10 @@ public class OrderTest
 	@Test
 	public void rejectPackForNonExistingOrder ()
 	{
-		CommandResultWithReply<Order.Command,Order.Event,Order.State,StatusReply<Done>>
+		CommandResultWithReply<Order.Command,Order.Event,Order.State,StatusReply<Order.PackOrderAllocationResult>>
 		    result =
 		    	eventSourcedTestKit.runCommand (
-		    			replyTo -> new Order.PackOrderAllocation ("dummyAllocationId", replyTo));
+		    		replyTo -> new Order.PackOrderAllocation ("dummyAllocationId", replyTo));
 		assertTrue (result.reply ().isError ());
 		assertTrue (result.hasNoEvents ());
 	}
@@ -253,7 +255,7 @@ public class OrderTest
 											   OrderTest.ITEMS,
 											   OrderTest.CUSTOMER),
 					  result1.event ());
-		CommandResultWithReply<Order.Command,Order.Event,Order.State,StatusReply<Done>>
+		CommandResultWithReply<Order.Command,Order.Event,Order.State,StatusReply<Order.PackOrderAllocationResult>>
 	        result2 =
 			    eventSourcedTestKit.runCommand (
 			    	replyTo -> new Order.PackOrderAllocation ("10", replyTo)); // this allocation ID shouldn't exist
@@ -262,11 +264,12 @@ public class OrderTest
 	}
 
 /**
-  * Tests rejection of pack items for an already packed allocation.
+  * Tests pack items for an already packed allocation - the second call doesn't fail -
+  * it simply returned the same tracking identifier.
   */
 
 	@Test
-	public void rejectAlreadyPackedAllocation ()
+	public void alreadyPackedAllocation ()
 	{
 // -- receive a new order
 		CommandResultWithReply<Order.Command,Order.Event,Order.State,StatusReply<Done>>
@@ -283,18 +286,22 @@ public class OrderTest
 											   OrderTest.CUSTOMER),
 					  result1.event ());
 // -- first pack items
-		CommandResultWithReply<Order.Command,Order.Event,Order.State,StatusReply<Done>>
+		CommandResultWithReply<Order.Command,Order.Event,Order.State,StatusReply<Order.PackOrderAllocationResult>>
 	        result2 =
 			    eventSourcedTestKit.runCommand (
 			    	replyTo -> new Order.PackOrderAllocation ("1", replyTo)); // this allocation ID should exist
 		assertTrue (result2.reply ().isSuccess ());
+		assertFalse (result2.hasNoEvents ());
 // -- second pack items
-		CommandResultWithReply<Order.Command,Order.Event,Order.State,StatusReply<Done>>
+		CommandResultWithReply<Order.Command,Order.Event,Order.State,StatusReply<Order.PackOrderAllocationResult>>
         result3 =
 		    eventSourcedTestKit.runCommand (
 		    	replyTo -> new Order.PackOrderAllocation ("1", replyTo)); // this allocation ID should exist
-		assertTrue (result3.reply ().isError ());
+		assertTrue (result3.reply ().isSuccess ());
 		assertTrue (result3.hasNoEvents ());
+		assertEquals (
+			result2.reply ().getValue ().trackingId (),
+			result3.reply ().getValue ().trackingId ());
 	}
 
 /**
@@ -328,12 +335,12 @@ public class OrderTest
 		String allocationID = result2.reply ().allocations ().keySet ().iterator ().next ();
 		assertTrue (result2.reply ().getAllocation (allocationID).getTrackingId () == null);
 // -- pack items
-		CommandResultWithReply<Order.Command,Order.Event,Order.State,StatusReply<Done>>
+		CommandResultWithReply<Order.Command,Order.Event,Order.State,StatusReply<Order.PackOrderAllocationResult>>
 		    result3 =
 		    	eventSourcedTestKit.runCommand (
 		    		replyTo -> new Order.PackOrderAllocation (allocationID, replyTo));
 		assertTrue (result3.reply ().isSuccess ());
-		result3.reply ().getValue ();
+		Order.PackOrderAllocationResult packed = result3.reply ().getValue ();
 // -- update tracking to PICKED_BY_COURIER
 		CommandResultWithReply<Order.Command,Order.Event,Order.State,StatusReply<Done>>
 	    	result4 =
@@ -470,12 +477,12 @@ public class OrderTest
 		assertTrue (result3.reply ().isError ());
 		assertTrue (result3.hasNoEvents ());
 // -- pack items
-		CommandResultWithReply<Order.Command,Order.Event,Order.State,StatusReply<Done>>
+		CommandResultWithReply<Order.Command,Order.Event,Order.State,StatusReply<Order.PackOrderAllocationResult>>
 		    result4 =
 		    	eventSourcedTestKit.runCommand (
 		    		replyTo -> new Order.PackOrderAllocation (allocationID, replyTo));
 		assertTrue (result4.reply ().isSuccess ());
-		result4.reply ().getValue ();
+		Order.PackOrderAllocationResult packed = result4.reply ().getValue ();
 // -- update tracking to PICKED_BY_COURIER
 		CommandResultWithReply<Order.Command,Order.Event,Order.State,StatusReply<Done>>
 	    	result5 =

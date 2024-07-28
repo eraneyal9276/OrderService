@@ -77,6 +77,10 @@ public class CourierBookingAPI {
   * Returns the booking API matching the passed courier identifier, or the default booking
   * API if the requested courier identifier is not registered.
   * <p>
+  * NOTE: The available courier booking APIs have been hard-coded in this class. If these
+  * 	  APIs were used in some production software, I would initialize them either from
+  * 	  configuration files or from a DB table (depending on the required flexibility).
+  * <p>
   * @param courierId the courier identifier
   * @return the booking API matching the passed courier identifier, or the default
   * 		booking API if the requested courier identifier is not registered

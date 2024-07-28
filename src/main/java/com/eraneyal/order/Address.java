@@ -40,6 +40,11 @@ public final class Address implements CborSerializable
   * @param city the city
   * @param country the country
   * @param zipCode the zip code
+  * <p>
+  * NOTE: This constructor supports minimal field validations. A real Address class used
+  * 	  in production will also verify maximum field lengths, the correct format of some
+  * 	  fields (such as zip code), accepted characters etc...
+  * 	  Such validations were not deemed crucial for this assignment.
   */
 
 	public Address (String street, String city, String country, int zipCode)

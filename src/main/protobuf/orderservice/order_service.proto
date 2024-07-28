@@ -51,7 +51,7 @@ message PackItemsRequest {
 }
 
 message PackItemsResponse {
-  bool ok = 1;
+  string tracking_id = 1;
 }
 
 enum TrackingStatus {

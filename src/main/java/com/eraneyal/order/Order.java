@@ -28,9 +28,6 @@ import akka.persistence.typed.javadsl.SignalHandler;
 import akka.serialization.jackson.CborSerializable;
 import akka.stream.Materializer;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.time.Duration;
 import java.time.Instant;
 import java.util.HashMap;
@@ -84,12 +81,20 @@ public class Order
   * delivery for them.
   * <p>
   * @param allocationId the allocation identifier
-  * @param replyTo a reference to the actor that will receive acknowledgement for
-  * 	   successful or failed processing
+  * @param replyTo a reference to the actor that will receive the reply for successful
+  *                or failed processing
   */
 
-    record PackOrderAllocation (String allocationId, ActorRef<StatusReply<Done>> replyTo)
+    record PackOrderAllocation (String allocationId, ActorRef<StatusReply<PackOrderAllocationResult>> replyTo)
     implements Command {}
+
+/**
+  * Represents the response to a pack order allocation request.
+  * <p>
+  * @param trackingId the delivery tracking identifier returned by the courier API
+  */
+
+    record PackOrderAllocationResult (String trackingId) implements CborSerializable {}
 
 /**
   * Represents the result of a book delivery courier API call.
@@ -120,10 +125,13 @@ public class Order
   * @param allocationId the allocation identifier
   * @param result the result of the book delivery courier API call
   * @param replyTo a reference to the actor that sent the original PackOrderAllocation
-  * 	   command, that will receive acknowledgement for successful or failed processing
+  * 	   command, that will receive the reply for successful or failed processing
   */
 
-    private record WrappedPackOrderAllocationResult (String allocationId, BookDeliveryResult result, ActorRef<StatusReply<Done>> replyTo)
+    private record WrappedPackOrderAllocationResult (
+        String allocationId,
+        BookDeliveryResult result,
+        ActorRef<StatusReply<PackOrderAllocationResult>> replyTo)
     implements Command {}
 
 /**
@@ -797,13 +805,12 @@ public class Order
 
 	private ReplyEffect<Event, State> onPackAllocation (State state, PackOrderAllocation cmd)
 	{
-		Logger logger = LoggerFactory.getLogger (getClass ()); // TODO remove this logger later
 		if (cmd.allocationId () == null || cmd.allocationId ().isBlank ()) {
 			return Effect ().reply (cmd.replyTo (),
 									StatusReply.error ("Pack items request must contain a valid allocation identifier"));
 		} else if (state instanceof AllocatedOrderState allocated) {
 			if (allocated.hasAllocation (cmd.allocationId ())) {
-				if (allocated.getLatestAllocationStatus (cmd.allocationId) == Allocation.Status.ALLOCATED) {
+				if (allocated.getLatestAllocationStatus (cmd.allocationId ()) == Allocation.Status.ALLOCATED) {
 					if (_bookingsInProgress == MAX_BOOKINGS_IN_PROGRESS) {
 						return Effect ().reply (cmd.replyTo (),
 												StatusReply.error ("Max " + MAX_BOOKINGS_IN_PROGRESS + " concurrent pack operations supported"));
@@ -818,7 +825,6 @@ public class Order
 								allocation,
 								allocated.customer ());
 							String uri = handler.getBookingURI (booking.getBaseURI (), params);
-							logger.info ("Executing booking API: {}", uri); // TODO remove
 							_bookingsInProgress++;
 							final CompletionStage<HttpResponse>
 								futureResponse = _http.singleRequest (HttpRequest.create (uri));
@@ -827,13 +833,11 @@ public class Order
 								(response, ex) -> {
 									if (ex != null) {
 // -- booking API failed
-										logger.error ("Failed to fetch response from {}: {}", uri, ex.getMessage ()); // TODO remove
 										return new WrappedPackOrderAllocationResult (
-											cmd.allocationId,
+											cmd.allocationId (),
 											new BookDeliveryFailure ("failed to book delivery: " + ex.getMessage ()),
 											cmd.replyTo ());
 									} else {
-										logger.info ("Received HTTP response status: {}", response.status ()); // TODO remove
 										if (response.status ().equals (StatusCodes.OK)) {
 // -- booking API successful
 											return
@@ -842,7 +846,6 @@ public class Order
 														.thenApply (entity -> {
 															try {
 																String responseBody = entity.getData ().utf8String ();
-																logger.info ("Response body: {}", responseBody); // TODO remove
 																String trackingId = booking.getBookingHandler ().getTrackingId (responseBody);
 																return new WrappedPackOrderAllocationResult (
 																	cmd.allocationId (),
@@ -860,7 +863,6 @@ public class Order
 														.join ();
 										} else {
 // -- booking API failed
-											logger.error ("Request failed with status code: {}", response.status ()); // TODO remove
 											return new WrappedPackOrderAllocationResult (
 												cmd.allocationId (),
 												new BookDeliveryFailure ("failed to book delivery with status code " + response.status ()),
@@ -876,8 +878,11 @@ public class Order
 						}
 					}
 				} else {
-					return Effect ().reply (cmd.replyTo (),
-											StatusReply.error ("Allocation has already been packed"));
+					return Effect ().reply (
+						cmd.replyTo (),
+						StatusReply.success (
+						    new PackOrderAllocationResult (
+							    allocated.getAllocation (cmd.allocationId ()).getTrackingId ())));
 				}
 			} else {
 				return Effect ().reply (cmd.replyTo (),
@@ -902,15 +907,18 @@ public class Order
 	{
 		_bookingsInProgress--;
 		if (state instanceof AllocatedOrderState allocated) {
-			if (allocated.hasAllocation (cmd.allocationId)) {
-				if (allocated.getLatestAllocationStatus (cmd.allocationId) == Allocation.Status.ALLOCATED) {
+			if (allocated.hasAllocation (cmd.allocationId ())) {
+				if (allocated.getLatestAllocationStatus (cmd.allocationId ()) == Allocation.Status.ALLOCATED) {
 					return switch (cmd.result) {
 					case BookDeliverySuccess success ->
-						Effect ().persist (new OrderAllocationPacked (_ident,
+					    Effect ().persist (new OrderAllocationPacked (_ident,
 																	  cmd.allocationId (),
 																	  success.trackingId (),
 																	  Instant.now ()))
-								 .thenReply (cmd.replyTo (), x -> StatusReply.ack ());
+								 .thenReply (
+								     cmd.replyTo (),
+								     newstate -> StatusReply.success (
+								         new PackOrderAllocationResult (success.trackingId ())));
 					case BookDeliveryFailure failure ->
 						Effect ().reply (
 							cmd.replyTo (),
@@ -919,7 +927,9 @@ public class Order
 				} else {
 					return Effect ().reply (
 						cmd.replyTo (),
-						StatusReply.error ("Allocation has already been packed"));
+						StatusReply.success (
+						    new PackOrderAllocationResult (
+						    	allocated.getAllocation (cmd.allocationId ()).getTrackingId ())));
 				}
 			} else {
 				return Effect ().reply (cmd.replyTo (),
@@ -948,7 +958,7 @@ public class Order
 			return Effect ().reply (cmd.replyTo (),
 									StatusReply.error ("Tracking update request must contain a valid status"));
 		} else if (state instanceof AllocatedOrderState allocated) {
-			if (allocated.hasAllocation (cmd.allocationId)) {
+			if (allocated.hasAllocation (cmd.allocationId ())) {
 				if (allocated.getLatestAllocationStatus (cmd.allocationId ()).ordinal () >= Allocation.Status.PACKED.ordinal () &&
 					allocated.getLatestAllocationStatus (cmd.allocationId ()).ordinal () < cmd.status().ordinal ()) {
 					return Effect ().persist (new TrackingUpdated (_ident,

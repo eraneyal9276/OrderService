@@ -94,11 +94,14 @@ public final class OrderServiceImpl implements OrderService
 		EntityRef<Order.Command>
 		    entityRef = sharding.entityRefFor (Order.ENTITY_KEY, in.getOrderId ());
 
-		CompletionStage<Done> reply =
+		CompletionStage<Order.PackOrderAllocationResult> reply =
 			entityRef.askWithStatus (replyTo ->
 				new Order.PackOrderAllocation (in.getAllocationId (), replyTo), timeout);
 		CompletionStage<PackItemsResponse> response =
-			reply.thenApply (done -> PackItemsResponse.newBuilder ().setOk (true).build ());
+			reply.thenApply (
+				result -> PackItemsResponse.newBuilder ()
+										   .setTrackingId (result.trackingId ())
+										   .build ());
 
 		return convertError (response);
 	}

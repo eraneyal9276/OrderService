@@ -33,6 +33,10 @@ public class OrderItem implements CborSerializable
   * @param ident the item identifier
   * @param name the item name
   * @param quantity the item quantity
+  * <p>
+  * NOTE: This constructor supports minimal field validations. A real OrderItem class used
+  * 	  in production will also verify maximum field lengths, accepted characters etc...
+  * 	  Such validations were not deemed crucial for this assignment.
   */
 
 	public OrderItem (String itemID, String name, int quantity)

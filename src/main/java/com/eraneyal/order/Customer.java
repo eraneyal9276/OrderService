@@ -47,6 +47,11 @@ public final class Customer implements CborSerializable
   * @param address the customer's shipping address
   * @param email the customer's email address
   * @param mobilePhone the customer's mobile phone number
+  * <p>
+  * NOTE: This constructor supports minimal field validations. A real Customer class used
+  * 	  in production will also verify maximum field lengths, the correct format of some
+  * 	  fields (such as email and mobilePhone), accepted characters etc...
+  * 	  Such validations were not deemed crucial for this assignment.
   */
 
 	public Customer (
