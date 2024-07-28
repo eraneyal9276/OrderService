@@ -53,7 +53,7 @@ public class Order
   * Represents the commands supported by this entity.
   */
 
-	public sealed interface Command extends CborSerializable {}
+    public sealed interface Command extends CborSerializable {}
 
 /**
   * Represents a command to validate and persist a new Order.
@@ -172,10 +172,10 @@ public class Order
   * @return true if an allocation exists for the given identifier
   */
 
-    	public boolean hasAllocation (String ident)
-    	{
-    		return allocations.containsKey (ident);
-    	}
+        public boolean hasAllocation (String ident)
+        {
+            return allocations.containsKey (ident);
+        }
 
  /**
    * Returns the allocation matching the given identifier, or null if it doesn't exist.
@@ -184,10 +184,10 @@ public class Order
    * @return the allocation matching the given identifier, or null if it doesn't exist
    */
 
-    	public Allocation getAllocation (String ident)
-    	{
-    		return allocations.get (ident);
-    	}
+        public Allocation getAllocation (String ident)
+        {
+            return allocations.get (ident);
+        }
 
     }
 
@@ -199,8 +199,8 @@ public class Order
   * Represents the events persisted by this entity.
   */
 
-	public sealed interface Event extends CborSerializable
-	{
+    public sealed interface Event extends CborSerializable
+    {
 
 /**
   * Returns the order identifier.
@@ -208,9 +208,9 @@ public class Order
   * @return the order identifier
   */
 
-		String orderId ();
+        String orderId ();
 
-	}
+    }
 
 /**
   * Represents a new order.
@@ -220,8 +220,8 @@ public class Order
   * @param customer the customer of the order
   */
 
-	record OrderReceived (String orderId, Map<String,OrderItem> items, Customer customer)
-	implements Event {}
+    record OrderReceived (String orderId, Map<String,OrderItem> items, Customer customer)
+    implements Event {}
 
 /**
   * Represents received order allocations.
@@ -230,8 +230,8 @@ public class Order
   * @param allocations the order allocations indexed by allocation identifier
   */
 
-	record OrderAllocationsReceived (String orderId, Map<String,Allocation> allocations)
-	implements Event {}
+    record OrderAllocationsReceived (String orderId, Map<String,Allocation> allocations)
+    implements Event {}
 
 /**
   * Represents an order allocation whose items are marked as packed and booked for
@@ -243,8 +243,8 @@ public class Order
   * @param timestamp the timestamp of the packing
   */
 
-	record OrderAllocationPacked (String orderId, String allocationId, String trackingId, Instant timestamp)
-	implements Event {}
+    record OrderAllocationPacked (String orderId, String allocationId, String trackingId, Instant timestamp)
+    implements Event {}
 
 /**
   * Represents an updated tracking status of an allocation.
@@ -255,8 +255,8 @@ public class Order
   * @param timestamp the timestamp of the status update
   */
 
-	record TrackingUpdated (String orderId, String allocationId, Allocation.Status status, Instant timestamp)
-	implements Event {}
+    record TrackingUpdated (String orderId, String allocationId, Allocation.Status status, Instant timestamp)
+    implements Event {}
 
 // ------------------------------------------------------------
 // The entity's State
@@ -266,8 +266,8 @@ public class Order
   * Represents the entity's state.
   */
 
-	public sealed interface State extends CborSerializable
-	{
+    public sealed interface State extends CborSerializable
+    {
 
 /**
   * Returns the order state as order details.
@@ -275,16 +275,16 @@ public class Order
   * @return the order state as order details
   */
 
-		public OrderDetails toOrderDetails ();
+        public OrderDetails toOrderDetails ();
 
-	};
+    }
 
 /**
   * Represents an empty order state.
   */
 
-	record BlankState () implements State
-	{
+    record BlankState () implements State
+    {
 
 /**
   * Returns the order state as order details.
@@ -292,13 +292,13 @@ public class Order
   * @return the order state as order details
   */
 
-		public OrderDetails toOrderDetails ()
-		{
+        public OrderDetails toOrderDetails ()
+        {
 // -- returns empty details
-			return new OrderDetails (new HashMap<> (), null);
-		}
+            return new OrderDetails (new HashMap<> (), null);
+        }
 
-	}
+    }
 
 /**
   * Represents the state of a new order.
@@ -309,7 +309,7 @@ public class Order
 
     record NewOrderState (Map<String,OrderItem> items, Customer customer)
     implements State
-	{
+    {
 
 /**
   * Returns the order state as order details.
@@ -317,23 +317,23 @@ public class Order
   * @return the order state as order details
   */
 
-		public OrderDetails toOrderDetails ()
-		{
+        public OrderDetails toOrderDetails ()
+        {
 // -- returns the order items inside a "dummy" allocation, since actual allocations don't
 // -- exist yet for this order
-			return new OrderDetails (
-					Map.of (
-						"Not Allocated",
-						new Allocation (
-							"N/A",
-							"N/A",
-							new Address ("N/A", "N/A", "N/A", 0),
-							new HashMap<> (items ()),
-							"No Courier",
-							null,
-							Map.of (Instant.now (), Allocation.Status.CREATED))),
-					customer);
-		}
+            return new OrderDetails (
+                Map.of (
+                    "Not Allocated",
+                    new Allocation (
+                        "N/A",
+                        "N/A",
+                        new Address ("N/A", "N/A", "N/A", 0),
+                        new HashMap<> (items ()),
+                        "No Courier",
+                        null,
+                        Map.of (Instant.now (), Allocation.Status.CREATED))),
+                customer);
+        }
 
 /**
   * Returns a new order state.
@@ -343,14 +343,14 @@ public class Order
   * @return the new order state
   */
 
-		public static State newOrder (Map<String,OrderItem> items, Customer customer)
-		{
-			Map<String,OrderItem> newItems = new HashMap<> (items);
+        public static State newOrder (Map<String,OrderItem> items, Customer customer)
+        {
+            Map<String,OrderItem> newItems = new HashMap<> (items);
 
-			return new NewOrderState (newItems, customer);
-		}
+            return new NewOrderState (newItems, customer);
+        }
 
-	}
+    }
 
 /**
   * Represents the state of an allocated order.
@@ -361,7 +361,7 @@ public class Order
 
     record AllocatedOrderState (Map<String,Allocation> allocations, Customer customer)
     implements State
-	{
+    {
 
 /**
   * Returns the order state as order details.
@@ -369,10 +369,10 @@ public class Order
   * @return the order state as order details
   */
 
-		public OrderDetails toOrderDetails ()
-		{
-			return new OrderDetails (new HashMap<> (allocations ()), customer ());
-		}
+        public OrderDetails toOrderDetails ()
+        {
+            return new OrderDetails (new HashMap<> (allocations ()), customer ());
+        }
 
 /**
   * Returns true if an allocation exists for the given identifier.
@@ -381,10 +381,10 @@ public class Order
   * @return true if an allocation exists for the given identifier
   */
 
-		public boolean hasAllocation (String ident)
-		{
-			return allocations.containsKey (ident);
-		}
+        public boolean hasAllocation (String ident)
+        {
+            return allocations.containsKey (ident);
+        }
 
 /**
   * Returns the allocation matching the given identifier, or null if it doesn't exist.
@@ -393,10 +393,10 @@ public class Order
   * @return the allocation matching the given identifier, or null if it doesn't exist
   */
 
-		public Allocation getAllocation (String ident)
-		{
-			return allocations.get (ident);
-		}
+        public Allocation getAllocation (String ident)
+        {
+            return allocations.get (ident);
+        }
 
 /**
   * Returns the latest (most current) processing status of the requested allocation.
@@ -406,16 +406,16 @@ public class Order
   * @return the latest (most current) processing status of the requested allocation
   */
 
-		public Allocation.Status getLatestAllocationStatus (String ident)
-		{
-			Allocation.Status latest = Allocation.Status.NA;
+        public Allocation.Status getLatestAllocationStatus (String ident)
+        {
+            Allocation.Status latest = Allocation.Status.NA;
 
-			if (allocations.containsKey (ident)) {
-				latest = allocations.get (ident).getLatestAllocationStatus ();
-			}
+            if (allocations.containsKey (ident)) {
+                latest = allocations.get (ident).getLatestAllocationStatus ();
+            }
 
-			return latest;
-		}
+            return latest;
+        }
 
 /**
   * Returns a new allocated order state.
@@ -425,15 +425,16 @@ public class Order
   * @return the new allocated order state
   */
 
-		public static State allocatedOrder (Map<String,Allocation> allocations, Customer customer)
-		{
-			Map<String,Allocation> newAllocations = new HashMap<> ();
-			if (allocations != null && !allocations.isEmpty ()) {
-				newAllocations.putAll (allocations);
-			}
+        public static State allocatedOrder (Map<String,Allocation> allocations, Customer customer)
+        {
+            Map<String,Allocation> newAllocations = new HashMap<> ();
 
-			return new AllocatedOrderState (newAllocations, customer);
-		}
+            if (allocations != null && !allocations.isEmpty ()) {
+                newAllocations.putAll (allocations);
+            }
+
+            return new AllocatedOrderState (newAllocations, customer);
+        }
 
 /**
   * Returns a new allocated order state based on the provided allocations and customer,
@@ -447,41 +448,42 @@ public class Order
   * @return the new allocated order state
   */
 
-		public static State allocatedOrderWithNewTrackingId (
-			Map<String,Allocation> allocations,
-			Customer customer,
-			String allocationId,
-			String trackingId,
-			Instant timestamp)
-		{
-			Map<String,Allocation> newAllocations = new HashMap<> ();
-			if (allocations != null) {
-				newAllocations =
-					allocations.values ()
-							   .stream ()
-							   .map (allocation -> {
-								   if (allocation.getID ().equals (allocationId)) {
-									   SortedMap<Instant, Allocation.Status>
-									   	   statuses = allocation.getStatuses ();
-									   statuses.put (timestamp, Allocation.Status.PACKED);
-									   return new Allocation (
-										   allocation.getID (),
-										   allocation.getName (),
-										   allocation.getAddress (),
-										   allocation.getItems (),
-										   allocation.getCourier (),
-										   trackingId,
-										   statuses);
-								   } else {
-								       return allocation;
-								   }
-							   })
-							   .collect (Collectors.toMap (Allocation::getID,
-														   Function.identity ()));
-			}
+        public static State allocatedOrderWithNewTrackingId (
+            Map<String,Allocation> allocations,
+            Customer customer,
+            String allocationId,
+            String trackingId,
+            Instant timestamp)
+        {
+            Map<String,Allocation> newAllocations = new HashMap<> ();
 
-			return new AllocatedOrderState (newAllocations, customer);
-		}
+            if (allocations != null) {
+                newAllocations =
+                    allocations.values ()
+                               .stream ()
+                               .map (allocation -> {
+                                   if (allocation.getID ().equals (allocationId)) {
+                                       SortedMap<Instant, Allocation.Status>
+                                           statuses = allocation.getStatuses ();
+                                       statuses.put (timestamp, Allocation.Status.PACKED);
+                                       return new Allocation (
+                                           allocation.getID (),
+                                           allocation.getName (),
+                                           allocation.getAddress (),
+                                           allocation.getItems (),
+                                           allocation.getCourier (),
+                                           trackingId,
+                                           statuses);
+                                   } else {
+                                       return allocation;
+                                   }
+                               })
+                               .collect (Collectors.toMap (Allocation::getID,
+                                                           Function.identity ()));
+            }
+
+            return new AllocatedOrderState (newAllocations, customer);
+        }
 
 /**
   * Returns a new allocated order state based on the provided allocations and customer,
@@ -495,86 +497,87 @@ public class Order
   * @return the new allocated order state
   */
 
-		public static State allocatedOrderWithNewStatus (
-			Map<String,Allocation> allocations,
-			Customer customer,
-			String allocationId,
-			Allocation.Status status,
-			Instant timestamp)
-		{
-			Map<String,Allocation> newAllocations = new HashMap<> ();
-			if (allocations != null) {
-				newAllocations =
-				    allocations.values ()
-							   .stream ()
-							   .map (allocation -> {
-							       if (allocation.getID ().equals (allocationId)) {
-								       SortedMap<Instant, Allocation.Status>
-								           statuses = allocation.getStatuses ();
-									   statuses.put (timestamp, status);
-									   return new Allocation (
-									       allocation.getID (),
-									       allocation.getName (),
-										   allocation.getAddress (),
-										   allocation.getItems (),
-										   allocation.getCourier (),
-										   allocation.getTrackingId (),
-										   statuses);
-								   } else {
-								       return allocation;
-								   }
-							   })
-							   .collect (Collectors.toMap (Allocation::getID,
-														   Function.identity ()));
-			}
+        public static State allocatedOrderWithNewStatus (
+            Map<String,Allocation> allocations,
+            Customer customer,
+            String allocationId,
+            Allocation.Status status,
+            Instant timestamp)
+        {
+            Map<String,Allocation> newAllocations = new HashMap<> ();
 
-			return new AllocatedOrderState (newAllocations, customer);
-		}
+            if (allocations != null) {
+                newAllocations =
+                    allocations.values ()
+                               .stream ()
+                               .map (allocation -> {
+                                   if (allocation.getID ().equals (allocationId)) {
+                                       SortedMap<Instant, Allocation.Status>
+                                           statuses = allocation.getStatuses ();
+                                       statuses.put (timestamp, status);
+                                       return new Allocation (
+                                           allocation.getID (),
+                                           allocation.getName (),
+                                           allocation.getAddress (),
+                                           allocation.getItems (),
+                                           allocation.getCourier (),
+                                           allocation.getTrackingId (),
+                                           statuses);
+                                   } else {
+                                       return allocation;
+                                   }
+                               })
+                               .collect (Collectors.toMap (Allocation::getID,
+                                                           Function.identity ()));
+            }
 
-	}
+            return new AllocatedOrderState (newAllocations, customer);
+        }
+
+    }
 
 /**
   * Holds the entity type key.
   */
 
     static final EntityTypeKey<Command>
-    	ENTITY_KEY = EntityTypeKey.create (Command.class, "Order");
+        ENTITY_KEY = EntityTypeKey.create (Command.class, "Order");
 
 /**
   * Holds the maximum number of booking API calls that be concurrently in progress.
   */
 
-	private static final int MAX_BOOKINGS_IN_PROGRESS = 10;
+    private static final int MAX_BOOKINGS_IN_PROGRESS = 10;
 
 /**
   * Holds the order identifier.
   */
 
-	private final String _ident;
+    private final String _ident;
 
 /**
   * Holds the actor context.
   */
 
-	private final ActorContext<Command> _ctx;
+    private final ActorContext<Command> _ctx;
 
 /**
   * Used for executing the courier booking API call.
   */
 
-	private final Http _http;
+    private final Http _http;
 
 /**
   * Used for executing the courier booking API call.
   */
 
-	private final Materializer _materializer;
+    private final Materializer _materializer;
 
 /**
   * Holds the current number of booking API calls in progress.
   */
 
-	private int _bookingsInProgress = 0;
+    private int _bookingsInProgress = 0;
 
 /**
   * Initializes cluster sharding for Order entities, which distributes the entities over
@@ -583,13 +586,13 @@ public class Order
   * @param system the actor system
   */
 
-	public static void init (ActorSystem<?> system)
-	{
-		ClusterSharding.get (system).init (
-			Entity.of (
-				ENTITY_KEY,
-				ctx -> Order.create (ctx.getEntityId ())));
-	}
+    public static void init (ActorSystem<?> system)
+    {
+        ClusterSharding.get (system).init (
+            Entity.of (
+                ENTITY_KEY,
+                ctx -> Order.create (ctx.getEntityId ())));
+    }
 
 /**
   * Creates an actor for the given order identifier.
@@ -598,16 +601,16 @@ public class Order
   * @return a new actor for the given order identifier
   */
 
-	public static Behavior<Command> create (String orderId)
-	{
-		return Behaviors.setup (
-			ctx -> EventSourcedBehavior.start (new Order (orderId, ctx), ctx));
-	}
+    public static Behavior<Command> create (String orderId)
+    {
+        return Behaviors.setup (
+            ctx -> EventSourcedBehavior.start (new Order (orderId, ctx), ctx));
+    }
 
 	@Override
 	public RetentionCriteria retentionCriteria ()
 	{
-		return RetentionCriteria.snapshotEvery (100);
+	    return RetentionCriteria.snapshotEvery (100);
 	}
 
 /**
@@ -619,21 +622,21 @@ public class Order
 
 	private Order (String orderId, ActorContext<Command> ctx)
 	{
-		super (
-			PersistenceId.of (ENTITY_KEY.name (), orderId),
-			SupervisorStrategy.restartWithBackoff (Duration.ofMillis (200),
-												  Duration.ofSeconds (5),
-												  0.1));
-		_ident = orderId;
-		_ctx = ctx;
-		_http = Http.get (ctx.getSystem ());
-		_materializer = Materializer.createMaterializer (ctx.getSystem ());
+	    super (
+	        PersistenceId.of (ENTITY_KEY.name (), orderId),
+	        SupervisorStrategy.restartWithBackoff (Duration.ofMillis (200),
+	                                               Duration.ofSeconds (5),
+	                                               0.1));
+	    _ident = orderId;
+	    _ctx = ctx;
+	    _http = Http.get (ctx.getSystem ());
+	    _materializer = Materializer.createMaterializer (ctx.getSystem ());
 	}
 
 	@Override
 	public State emptyState ()
 	{
-		return new BlankState ();
+	    return new BlankState ();
 	}
 
 // ------------------------------------------------------------
@@ -649,11 +652,11 @@ public class Order
 	@Override
 	public CommandHandlerWithReply<Command, Event, State> commandHandler ()
 	{
-		return newOrderHandler ()
-			.orElse (existingOrderHandler ())
-			.orElse (allocatedOrderHandler ())
-			.orElse (defaultHandler ())
-			.build ();
+	    return newOrderHandler ()
+	        .orElse (existingOrderHandler ())
+	        .orElse (allocatedOrderHandler ())
+	        .orElse (defaultHandler ())
+	        .build ();
 	}
 
 /**
@@ -663,19 +666,19 @@ public class Order
   */
 
 	private CommandHandlerWithReplyBuilderByState<Command, Event, State, State>
-		newOrderHandler ()
+	    newOrderHandler ()
 	{
-		return newCommandHandlerWithReplyBuilder ()
-			.forState (state -> state instanceof BlankState)
-			.onCommand (ReceiveOrder.class, this::onReceiveOrder)
-			.onCommand (
-				PackOrderAllocation.class,
-				cmd -> Effect ().reply (cmd.replyTo (),
-										StatusReply.error ("Order doesn't exist")))
-			.onCommand (
-				UpdateTracking.class,
-				cmd -> Effect ().reply (cmd.replyTo (),
-										StatusReply.error ("Order doesn't exist")));
+	    return newCommandHandlerWithReplyBuilder ()
+	        .forState (state -> state instanceof BlankState)
+	        .onCommand (ReceiveOrder.class, this::onReceiveOrder)
+	        .onCommand (
+	            PackOrderAllocation.class,
+	            cmd -> Effect ().reply (cmd.replyTo (),
+	                                    StatusReply.error ("Order doesn't exist")))
+	        .onCommand (
+	            UpdateTracking.class,
+	            cmd -> Effect ().reply (cmd.replyTo (),
+	                                    StatusReply.error ("Order doesn't exist")));
 	}
 
 /**
@@ -686,23 +689,23 @@ public class Order
   */
 
 	private CommandHandlerWithReplyBuilderByState<Command, Event, State, State>
-		existingOrderHandler ()
+	    existingOrderHandler ()
 	{
-		return newCommandHandlerWithReplyBuilder ()
-			.forState (state -> state instanceof NewOrderState)
-			.onCommand (
-				ReceiveOrder.class,
-				cmd -> Effect ().reply (cmd.replyTo (),
-										StatusReply.error ("Order already exists")))
-		    .onCommand (ReceiveOrderAllocations.class, this::onReceiveAllocations)
-			.onCommand (
-				PackOrderAllocation.class,
-				cmd -> Effect ().reply (cmd.replyTo (),
-										StatusReply.error ("Order has no allocations")))
-			.onCommand (
-				UpdateTracking.class,
-				cmd -> Effect ().reply (cmd.replyTo (),
-										StatusReply.error ("Order has no allocations")));
+	    return newCommandHandlerWithReplyBuilder ()
+	        .forState (state -> state instanceof NewOrderState)
+	        .onCommand (
+	            ReceiveOrder.class,
+	            cmd -> Effect ().reply (cmd.replyTo (),
+	                                    StatusReply.error ("Order already exists")))
+	        .onCommand (ReceiveOrderAllocations.class, this::onReceiveAllocations)
+	        .onCommand (
+	            PackOrderAllocation.class,
+	            cmd -> Effect ().reply (cmd.replyTo (),
+	                                    StatusReply.error ("Order has no allocations")))
+	        .onCommand (
+	            UpdateTracking.class,
+	            cmd -> Effect ().reply (cmd.replyTo (),
+	                                    StatusReply.error ("Order has no allocations")));
 	}
 
 /**
@@ -713,20 +716,20 @@ public class Order
   */
 
 	private CommandHandlerWithReplyBuilderByState<Command, Event, State, State>
-		allocatedOrderHandler ()
+	    allocatedOrderHandler ()
 	{
-		return newCommandHandlerWithReplyBuilder ()
-			.forState (state -> state instanceof AllocatedOrderState)
-			.onCommand (
-				ReceiveOrder.class,
-				cmd -> Effect ().reply (cmd.replyTo (),
-										StatusReply.error ("Order already exists")))
-			.onCommand (
-				ReceiveOrderAllocations.class,
-				cmd -> Effect ().noReply ())
-			.onCommand (PackOrderAllocation.class, this::onPackAllocation)
-			.onCommand (WrappedPackOrderAllocationResult.class, this::onPackAllocationResult)
-			.onCommand (UpdateTracking.class, this::onUpdateTracking);
+	    return newCommandHandlerWithReplyBuilder ()
+	        .forState (state -> state instanceof AllocatedOrderState)
+	        .onCommand (
+	            ReceiveOrder.class,
+	            cmd -> Effect ().reply (cmd.replyTo (),
+	                                    StatusReply.error ("Order already exists")))
+	        .onCommand (
+	            ReceiveOrderAllocations.class,
+	            cmd -> Effect ().noReply ())
+	        .onCommand (PackOrderAllocation.class, this::onPackAllocation)
+	        .onCommand (WrappedPackOrderAllocationResult.class, this::onPackAllocationResult)
+	        .onCommand (UpdateTracking.class, this::onUpdateTracking);
 	}
 
 /**
@@ -736,13 +739,13 @@ public class Order
   */
 
 	private CommandHandlerWithReplyBuilderByState<Command, Event, State, State>
-		defaultHandler ()
+	    defaultHandler ()
 	{
-		return newCommandHandlerWithReplyBuilder ()
-			.forAnyState ()
-			.onCommand (FetchOrderDetails.class,
-						(state, cmd) -> Effect ().reply (cmd.replyTo (),
-														 state.toOrderDetails ()));
+	    return newCommandHandlerWithReplyBuilder ()
+	        .forAnyState ()
+	        .onCommand (FetchOrderDetails.class,
+	                    (state, cmd) -> Effect ().reply (cmd.replyTo (),
+	                                                     state.toOrderDetails ()));
 	}
 
 /**
@@ -756,23 +759,23 @@ public class Order
 
 	private ReplyEffect<Event, State> onReceiveOrder (State state, ReceiveOrder cmd)
 	{
-		if (cmd.customer () == null) {
-			return Effect ().reply (cmd.replyTo (),
-								   StatusReply.error ("Customer details must be supplied"));
-		} else if (cmd.items () == null || cmd.items ().isEmpty ()) {
-			return Effect ().reply (cmd.replyTo (),
-					   				StatusReply.error ("Order must contain at least one item"));
-		} else {
-			return Effect ().persist (new OrderReceived (_ident,
-														 cmd.items (),
-														 cmd.customer ()))
-							.thenRun (newState ->
-								_ctx.spawn (OrderAllocator.create (), _ident + "-allocator")
-								    .tell (new OrderAllocator.Allocate (cmd.items (),
-								    									cmd.customer (),
-								    									_ctx.getSelf ())))
-							.thenReply (cmd.replyTo (), x -> StatusReply.ack ());
-		}
+	    if (cmd.customer () == null) {
+	        return Effect ().reply (cmd.replyTo (),
+	                                StatusReply.error ("Customer details must be supplied"));
+	    } else if (cmd.items () == null || cmd.items ().isEmpty ()) {
+	        return Effect ().reply (cmd.replyTo (),
+	                                StatusReply.error ("Order must contain at least one item"));
+	    } else {
+	        return Effect ().persist (new OrderReceived (_ident,
+	                                                     cmd.items (),
+	                                                     cmd.customer ()))
+	                        .thenRun (newState ->
+	                            _ctx.spawn (OrderAllocator.create (), _ident + "-allocator")
+	                                .tell (new OrderAllocator.Allocate (cmd.items (),
+	                                                                    cmd.customer (),
+	                                                                    _ctx.getSelf ())))
+	                        .thenReply (cmd.replyTo (), x -> StatusReply.ack ());
+	    }
 	}
 
 /**
@@ -785,13 +788,13 @@ public class Order
 
 	private ReplyEffect<Event, State> onReceiveAllocations (State state, ReceiveOrderAllocations cmd)
 	{
-		if (cmd.allocations () != null && !cmd.allocations ().isEmpty ()) {
-			return Effect ().persist (new OrderAllocationsReceived (_ident,
-																	cmd.allocations ()))
-						    .thenNoReply ();
-		} else {
-			return Effect ().noReply ();
-		}
+	    if (cmd.allocations () != null && !cmd.allocations ().isEmpty ()) {
+	        return Effect ().persist (new OrderAllocationsReceived (_ident,
+	                                                                cmd.allocations ()))
+	                        .thenNoReply ();
+	    } else {
+	        return Effect ().noReply ();
+	    }
 	}
 
 /**
@@ -805,93 +808,93 @@ public class Order
 
 	private ReplyEffect<Event, State> onPackAllocation (State state, PackOrderAllocation cmd)
 	{
-		if (cmd.allocationId () == null || cmd.allocationId ().isBlank ()) {
-			return Effect ().reply (cmd.replyTo (),
-									StatusReply.error ("Pack items request must contain a valid allocation identifier"));
-		} else if (state instanceof AllocatedOrderState allocated) {
-			if (allocated.hasAllocation (cmd.allocationId ())) {
-				if (allocated.getLatestAllocationStatus (cmd.allocationId ()) == Allocation.Status.ALLOCATED) {
-					if (_bookingsInProgress == MAX_BOOKINGS_IN_PROGRESS) {
-						return Effect ().reply (cmd.replyTo (),
-												StatusReply.error ("Max " + MAX_BOOKINGS_IN_PROGRESS + " concurrent pack operations supported"));
-					} else {
-						try {
-							Allocation allocation = allocated.getAllocation (cmd.allocationId ());
-							CourierBookingAPI booking =
-								CourierBookingAPI.getInstanceOrDefault (allocation.getCourier ());
-							CourierBookingHandler handler = booking.getBookingHandler();
-							Map<String,String> params = handler.getHTTPRequestParams (
-								_ident,
-								allocation,
-								allocated.customer ());
-							String uri = handler.getBookingURI (booking.getBaseURI (), params);
-							_bookingsInProgress++;
-							final CompletionStage<HttpResponse>
-								futureResponse = _http.singleRequest (HttpRequest.create (uri));
-							_ctx.pipeToSelf (
-								futureResponse,
-								(response, ex) -> {
-									if (ex != null) {
+	    if (cmd.allocationId () == null || cmd.allocationId ().isBlank ()) {
+	        return Effect ().reply (cmd.replyTo (),
+	                                StatusReply.error ("Pack items request must contain a valid allocation identifier"));
+	    } else if (state instanceof AllocatedOrderState allocated) {
+	        if (allocated.hasAllocation (cmd.allocationId ())) {
+	            if (allocated.getLatestAllocationStatus (cmd.allocationId ()) == Allocation.Status.ALLOCATED) {
+	                if (_bookingsInProgress == MAX_BOOKINGS_IN_PROGRESS) {
+	                    return Effect ().reply (cmd.replyTo (),
+	                        StatusReply.error ("Max " + MAX_BOOKINGS_IN_PROGRESS + " concurrent pack operations supported"));
+	                } else {
+	                    try {
+	                        Allocation allocation = allocated.getAllocation (cmd.allocationId ());
+	                        CourierBookingAPI booking =
+	                            CourierBookingAPI.getInstanceOrDefault (allocation.getCourier ());
+	                        CourierBookingHandler handler = booking.getBookingHandler();
+	                        Map<String,String> params = handler.getHTTPRequestParams (
+	                            _ident,
+	                            allocation,
+	                            allocated.customer ());
+	                        String uri = handler.getBookingURI (booking.getBaseURI (), params);
+	                        _bookingsInProgress++;
+	                        final CompletionStage<HttpResponse>
+	                            futureResponse = _http.singleRequest (HttpRequest.create (uri));
+	                        _ctx.pipeToSelf (
+	                            futureResponse,
+	                            (response, ex) -> {
+	                                if (ex != null) {
 // -- booking API failed
-										return new WrappedPackOrderAllocationResult (
-											cmd.allocationId (),
-											new BookDeliveryFailure ("failed to book delivery: " + ex.getMessage ()),
-											cmd.replyTo ());
-									} else {
-										if (response.status ().equals (StatusCodes.OK)) {
+	                                    return new WrappedPackOrderAllocationResult (
+	                                        cmd.allocationId (),
+	                                        new BookDeliveryFailure ("failed to book delivery: " + ex.getMessage ()),
+	                                        cmd.replyTo ());
+	                                } else {
+	                                    if (response.status ().equals (StatusCodes.OK)) {
 // -- booking API successful
-											return
-												response.entity ()
-														.toStrict (5000, _materializer)
-														.thenApply (entity -> {
-															try {
-																String responseBody = entity.getData ().utf8String ();
-																String trackingId = booking.getBookingHandler ().getTrackingId (responseBody);
-																return new WrappedPackOrderAllocationResult (
-																	cmd.allocationId (),
-																	new BookDeliverySuccess (trackingId),
-																	cmd.replyTo ());
-															}
-															catch (CourierBookingHandlerException bookingEx) {
-																return new WrappedPackOrderAllocationResult (
-																	cmd.allocationId (),
-																	new BookDeliveryFailure ("failed to book delivery: " + bookingEx.getMessage ()),
-																	cmd.replyTo ());
-															}
-														})
-														.toCompletableFuture ()
-														.join ();
-										} else {
+	                                        return
+	                                            response.entity ()
+	                                                    .toStrict (5000, _materializer)
+	                                                    .thenApply (entity -> {
+	                                                        try {
+	                                                            String responseBody = entity.getData ().utf8String ();
+	                                                            String trackingId = booking.getBookingHandler ().getTrackingId (responseBody);
+	                                                            return new WrappedPackOrderAllocationResult (
+	                                                                cmd.allocationId (),
+	                                                                new BookDeliverySuccess (trackingId),
+	                                                                cmd.replyTo ());
+	                                                        }
+	                                                        catch (CourierBookingHandlerException bookingEx) {
+	                                                            return new WrappedPackOrderAllocationResult (
+	                                                                cmd.allocationId (),
+	                                                                new BookDeliveryFailure ("failed to book delivery: " + bookingEx.getMessage ()),
+	                                                                cmd.replyTo ());
+	                                                        }
+	                                                    })
+	                                                    .toCompletableFuture ()
+	                                                    .join ();
+	                                    } else {
 // -- booking API failed
-											return new WrappedPackOrderAllocationResult (
-												cmd.allocationId (),
-												new BookDeliveryFailure ("failed to book delivery with status code " + response.status ()),
-												cmd.replyTo ());
-										}
-									}
-								});
-							return Effect ().noReply ();
-						}
-						catch (CourierBookingHandlerException bookingEx) {
-							return Effect ().reply (cmd.replyTo (),
-								StatusReply.error ("failed to book delivery: " + bookingEx.getMessage ()));
-						}
-					}
-				} else {
-					return Effect ().reply (
-						cmd.replyTo (),
-						StatusReply.success (
-						    new PackOrderAllocationResult (
-							    allocated.getAllocation (cmd.allocationId ()).getTrackingId ())));
-				}
-			} else {
-				return Effect ().reply (cmd.replyTo (),
-										StatusReply.error ("Allocation not found"));
-			}
-		} else {
-			return Effect ().reply (cmd.replyTo (),
-									StatusReply.error ("Order is not yet allocated"));
-		}
+	                                        return new WrappedPackOrderAllocationResult (
+	                                            cmd.allocationId (),
+	                                            new BookDeliveryFailure ("failed to book delivery with status code " + response.status ()),
+	                                            cmd.replyTo ());
+	                                    }
+	                                }
+	                            });
+	                        return Effect ().noReply ();
+	                    }
+	                    catch (CourierBookingHandlerException bookingEx) {
+	                        return Effect ().reply (cmd.replyTo (),
+	                            StatusReply.error ("failed to book delivery: " + bookingEx.getMessage ()));
+	                    }
+	                }
+	            } else {
+	                return Effect ().reply (
+	                    cmd.replyTo (),
+	                    StatusReply.success (
+	                        new PackOrderAllocationResult (
+	                            allocated.getAllocation (cmd.allocationId ()).getTrackingId ())));
+	            }
+	        } else {
+	            return Effect ().reply (cmd.replyTo (),
+	                                    StatusReply.error ("Allocation not found"));
+	        }
+	    } else {
+	        return Effect ().reply (cmd.replyTo (),
+	                                StatusReply.error ("Order is not yet allocated"));
+	    }
 	}
 
 /**
@@ -905,40 +908,40 @@ public class Order
 
 	private ReplyEffect<Event, State> onPackAllocationResult (State state, WrappedPackOrderAllocationResult cmd)
 	{
-		_bookingsInProgress--;
-		if (state instanceof AllocatedOrderState allocated) {
-			if (allocated.hasAllocation (cmd.allocationId ())) {
-				if (allocated.getLatestAllocationStatus (cmd.allocationId ()) == Allocation.Status.ALLOCATED) {
-					return switch (cmd.result) {
-					case BookDeliverySuccess success ->
-					    Effect ().persist (new OrderAllocationPacked (_ident,
-																	  cmd.allocationId (),
-																	  success.trackingId (),
-																	  Instant.now ()))
-								 .thenReply (
-								     cmd.replyTo (),
-								     newstate -> StatusReply.success (
-								         new PackOrderAllocationResult (success.trackingId ())));
-					case BookDeliveryFailure failure ->
-						Effect ().reply (
-							cmd.replyTo (),
-							StatusReply.error ("failed to book delivery: " + failure.reason));
-					};
-				} else {
-					return Effect ().reply (
-						cmd.replyTo (),
-						StatusReply.success (
-						    new PackOrderAllocationResult (
-						    	allocated.getAllocation (cmd.allocationId ()).getTrackingId ())));
-				}
-			} else {
-				return Effect ().reply (cmd.replyTo (),
-										StatusReply.error ("Allocation not found"));
-			}
-		} else {
-			return Effect ().reply (cmd.replyTo (),
-									StatusReply.error ("Order is not yet allocated"));
-		}
+	    _bookingsInProgress--;
+	    if (state instanceof AllocatedOrderState allocated) {
+	        if (allocated.hasAllocation (cmd.allocationId ())) {
+	            if (allocated.getLatestAllocationStatus (cmd.allocationId ()) == Allocation.Status.ALLOCATED) {
+	                return switch (cmd.result) {
+	                case BookDeliverySuccess success ->
+	                    Effect ().persist (new OrderAllocationPacked (_ident,
+	                                                                  cmd.allocationId (),
+	                                                                  success.trackingId (),
+	                                                                  Instant.now ()))
+	                             .thenReply (
+	                                 cmd.replyTo (),
+	                                 newstate -> StatusReply.success (
+	                                     new PackOrderAllocationResult (success.trackingId ())));
+	                case BookDeliveryFailure failure ->
+	                    Effect ().reply (
+	                        cmd.replyTo (),
+	                        StatusReply.error ("failed to book delivery: " + failure.reason));
+	                };
+	            } else {
+	                return Effect ().reply (
+	                    cmd.replyTo (),
+	                    StatusReply.success (
+	                        new PackOrderAllocationResult (
+	                            allocated.getAllocation (cmd.allocationId ()).getTrackingId ())));
+	            }
+	        } else {
+	            return Effect ().reply (cmd.replyTo (),
+	                                    StatusReply.error ("Allocation not found"));
+	        }
+	    } else {
+	        return Effect ().reply (cmd.replyTo (),
+	                                StatusReply.error ("Order is not yet allocated"));
+	    }
 	}
 
 /**
@@ -951,36 +954,36 @@ public class Order
 
 	private ReplyEffect<Event, State> onUpdateTracking (State state, UpdateTracking cmd)
 	{
-		if (cmd.allocationId () == null || cmd.allocationId ().isBlank ()) {
-			return Effect ().reply (cmd.replyTo (),
-									StatusReply.error ("Tracking update request must contain a valid allocation identifier"));
-		} else if (cmd.status () == null) {
-			return Effect ().reply (cmd.replyTo (),
-									StatusReply.error ("Tracking update request must contain a valid status"));
-		} else if (state instanceof AllocatedOrderState allocated) {
-			if (allocated.hasAllocation (cmd.allocationId ())) {
-				if (allocated.getLatestAllocationStatus (cmd.allocationId ()).ordinal () >= Allocation.Status.PACKED.ordinal () &&
-					allocated.getLatestAllocationStatus (cmd.allocationId ()).ordinal () < cmd.status().ordinal ()) {
-					return Effect ().persist (new TrackingUpdated (_ident,
-																   cmd.allocationId (),
-																   cmd.status (),
-																   Instant.now ()))
-							        .thenReply (cmd.replyTo (), x -> StatusReply.ack ());
-				} else {
-					return Effect ().reply (
-						cmd.replyTo (),
-						StatusReply.error ("Existing allocation status inconsistent with requested tracking status"));
-				}
-			} else {
-				return Effect ().reply (
-					cmd.replyTo (),
-					StatusReply.error ("Allocation not found"));
-			}
-		} else {
-			return Effect ().reply (
-				cmd.replyTo (),
-				StatusReply.error ("Order is not yet allocated"));
-		}
+	    if (cmd.allocationId () == null || cmd.allocationId ().isBlank ()) {
+	        return Effect ().reply (cmd.replyTo (),
+	                                StatusReply.error ("Tracking update request must contain a valid allocation identifier"));
+	    } else if (cmd.status () == null) {
+	        return Effect ().reply (cmd.replyTo (),
+	                                StatusReply.error ("Tracking update request must contain a valid status"));
+	    } else if (state instanceof AllocatedOrderState allocated) {
+	        if (allocated.hasAllocation (cmd.allocationId ())) {
+	            if (allocated.getLatestAllocationStatus (cmd.allocationId ()).ordinal () >= Allocation.Status.PACKED.ordinal () &&
+	                allocated.getLatestAllocationStatus (cmd.allocationId ()).ordinal () < cmd.status().ordinal ()) {
+	                return Effect ().persist (new TrackingUpdated (_ident,
+	                                                               cmd.allocationId (),
+	                                                               cmd.status (),
+	                                                               Instant.now ()))
+	                                .thenReply (cmd.replyTo (), x -> StatusReply.ack ());
+	            } else {
+	                return Effect ().reply (
+	                    cmd.replyTo (),
+	                    StatusReply.error ("Existing allocation status inconsistent with requested tracking status"));
+	            }
+	        } else {
+	            return Effect ().reply (
+	                cmd.replyTo (),
+	                StatusReply.error ("Allocation not found"));
+	        }
+	    } else {
+	        return Effect ().reply (
+	            cmd.replyTo (),
+	            StatusReply.error ("Order is not yet allocated"));
+	    }
 	}
 
 // ------------------------------------------------------------
@@ -993,21 +996,21 @@ public class Order
 
 	@Override
 	public EventHandler<State, Event> eventHandler () {
-		var builder = newEventHandlerBuilder ();
-		builder
-			.forStateType (BlankState.class)
-			.onEvent (OrderReceived.class, (state, evt) -> Order.NewOrderState.newOrder (evt.items (), evt.customer ()));
+	    var builder = newEventHandlerBuilder ();
+	    builder
+	        .forStateType (BlankState.class)
+	        .onEvent (OrderReceived.class, (state, evt) -> Order.NewOrderState.newOrder (evt.items (), evt.customer ()));
 
-		builder
-			.forStateType (NewOrderState.class)
-			.onEvent (OrderAllocationsReceived.class, (state, evt) -> Order.AllocatedOrderState.allocatedOrder (evt.allocations (), state.customer ()));
+	    builder
+	        .forStateType (NewOrderState.class)
+	        .onEvent (OrderAllocationsReceived.class, (state, evt) -> Order.AllocatedOrderState.allocatedOrder (evt.allocations (), state.customer ()));
 
-		builder
-			.forStateType (AllocatedOrderState.class)
-			.onEvent(OrderAllocationPacked.class, (state, evt) -> Order.AllocatedOrderState.allocatedOrderWithNewTrackingId (state.allocations (), state.customer (), evt.allocationId (), evt.trackingId (), evt.timestamp ()))
- 			.onEvent(TrackingUpdated.class, (state, evt) -> Order.AllocatedOrderState.allocatedOrderWithNewStatus (state.allocations (), state.customer (), evt.allocationId (), evt.status (), evt.timestamp ()));
+	    builder
+	        .forStateType (AllocatedOrderState.class)
+	        .onEvent(OrderAllocationPacked.class, (state, evt) -> Order.AllocatedOrderState.allocatedOrderWithNewTrackingId (state.allocations (), state.customer (), evt.allocationId (), evt.trackingId (), evt.timestamp ()))
+	        .onEvent(TrackingUpdated.class, (state, evt) -> Order.AllocatedOrderState.allocatedOrderWithNewStatus (state.allocations (), state.customer (), evt.allocationId (), evt.status (), evt.timestamp ()));
 
-		return builder.build ();
+	    return builder.build ();
 	}
 
 /**
@@ -1017,20 +1020,20 @@ public class Order
 	@Override
 	public SignalHandler<State> signalHandler ()
 	{
-		return newSignalHandlerBuilder ()
-			.onSignal (
-				RecoveryCompleted.instance (),
-				state -> {
+	    return newSignalHandlerBuilder ()
+	        .onSignal (
+	            RecoveryCompleted.instance (),
+	            state -> {
 // -- if a new order was persisted, but failed to be assigned allocations, attempt to
 // -- create allocations again
-					if (state instanceof NewOrderState newOrder) {
-						_ctx.spawn (OrderAllocator.create (), _ident + "-allocator")
-	        		  	  	.tell (new OrderAllocator.Allocate (newOrder.items (),
-	        		  	  		   newOrder.customer (),
-	        		  	  		   _ctx.getSelf ()));
-					}
-				})
-			.build ();
+	                if (state instanceof NewOrderState newOrder) {
+	                    _ctx.spawn (OrderAllocator.create (), _ident + "-allocator")
+	                        .tell (new OrderAllocator.Allocate (newOrder.items (),
+                                   newOrder.customer (),
+                                   _ctx.getSelf ()));
+	                }
+	            })
+	        .build ();
 	}
 
 }
