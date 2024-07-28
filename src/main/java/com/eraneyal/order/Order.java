@@ -607,11 +607,11 @@ public class Order
             ctx -> EventSourcedBehavior.start (new Order (orderId, ctx), ctx));
     }
 
-	@Override
-	public RetentionCriteria retentionCriteria ()
-	{
-	    return RetentionCriteria.snapshotEvery (100);
-	}
+    @Override
+    public RetentionCriteria retentionCriteria ()
+    {
+        return RetentionCriteria.snapshotEvery (100);
+    }
 
 /**
   * Creates a new order instance.
@@ -620,24 +620,24 @@ public class Order
   * @param ctx the actor context
   */
 
-	private Order (String orderId, ActorContext<Command> ctx)
-	{
-	    super (
-	        PersistenceId.of (ENTITY_KEY.name (), orderId),
-	        SupervisorStrategy.restartWithBackoff (Duration.ofMillis (200),
-	                                               Duration.ofSeconds (5),
-	                                               0.1));
-	    _ident = orderId;
-	    _ctx = ctx;
-	    _http = Http.get (ctx.getSystem ());
-	    _materializer = Materializer.createMaterializer (ctx.getSystem ());
-	}
+    private Order (String orderId, ActorContext<Command> ctx)
+    {
+        super (
+            PersistenceId.of (ENTITY_KEY.name (), orderId),
+            SupervisorStrategy.restartWithBackoff (Duration.ofMillis (200),
+                                                   Duration.ofSeconds (5),
+                                                   0.1));
+        _ident = orderId;
+        _ctx = ctx;
+        _http = Http.get (ctx.getSystem ());
+        _materializer = Materializer.createMaterializer (ctx.getSystem ());
+    }
 
-	@Override
-	public State emptyState ()
-	{
-	    return new BlankState ();
-	}
+    @Override
+    public State emptyState ()
+    {
+        return new BlankState ();
+    }
 
 // ------------------------------------------------------------
 // Command handling logic
@@ -667,19 +667,19 @@ public class Order
 
 	private CommandHandlerWithReplyBuilderByState<Command, Event, State, State>
 	    newOrderHandler ()
-	{
+    {
 	    return newCommandHandlerWithReplyBuilder ()
 	        .forState (state -> state instanceof BlankState)
-	        .onCommand (ReceiveOrder.class, this::onReceiveOrder)
-	        .onCommand (
-	            PackOrderAllocation.class,
-	            cmd -> Effect ().reply (cmd.replyTo (),
-	                                    StatusReply.error ("Order doesn't exist")))
-	        .onCommand (
-	            UpdateTracking.class,
-	            cmd -> Effect ().reply (cmd.replyTo (),
-	                                    StatusReply.error ("Order doesn't exist")));
-	}
+            .onCommand (ReceiveOrder.class, this::onReceiveOrder)
+            .onCommand (
+                PackOrderAllocation.class,
+                cmd -> Effect ().reply (cmd.replyTo (),
+                                        StatusReply.error ("Order doesn't exist")))
+            .onCommand (
+                UpdateTracking.class,
+                cmd -> Effect ().reply (cmd.replyTo (),
+                                        StatusReply.error ("Order doesn't exist")));
+    }
 
 /**
   * Return command handler for existing orders without allocations.
@@ -688,25 +688,25 @@ public class Order
   * @return the command handler
   */
 
-	private CommandHandlerWithReplyBuilderByState<Command, Event, State, State>
-	    existingOrderHandler ()
-	{
-	    return newCommandHandlerWithReplyBuilder ()
-	        .forState (state -> state instanceof NewOrderState)
-	        .onCommand (
-	            ReceiveOrder.class,
-	            cmd -> Effect ().reply (cmd.replyTo (),
-	                                    StatusReply.error ("Order already exists")))
-	        .onCommand (ReceiveOrderAllocations.class, this::onReceiveAllocations)
-	        .onCommand (
-	            PackOrderAllocation.class,
-	            cmd -> Effect ().reply (cmd.replyTo (),
-	                                    StatusReply.error ("Order has no allocations")))
-	        .onCommand (
-	            UpdateTracking.class,
-	            cmd -> Effect ().reply (cmd.replyTo (),
-	                                    StatusReply.error ("Order has no allocations")));
-	}
+    private CommandHandlerWithReplyBuilderByState<Command, Event, State, State>
+        existingOrderHandler ()
+    {
+        return newCommandHandlerWithReplyBuilder ()
+            .forState (state -> state instanceof NewOrderState)
+            .onCommand (
+                ReceiveOrder.class,
+                cmd -> Effect ().reply (cmd.replyTo (),
+                                        StatusReply.error ("Order already exists")))
+            .onCommand (ReceiveOrderAllocations.class, this::onReceiveAllocations)
+            .onCommand (
+                PackOrderAllocation.class,
+                cmd -> Effect ().reply (cmd.replyTo (),
+                                        StatusReply.error ("Order has no allocations")))
+            .onCommand (
+                UpdateTracking.class,
+                cmd -> Effect ().reply (cmd.replyTo (),
+                                        StatusReply.error ("Order has no allocations")));
+    }
 
 /**
   * Return command handler for existing orders with allocations.
@@ -715,22 +715,22 @@ public class Order
   * @return the command handler
   */
 
-	private CommandHandlerWithReplyBuilderByState<Command, Event, State, State>
-	    allocatedOrderHandler ()
-	{
-	    return newCommandHandlerWithReplyBuilder ()
-	        .forState (state -> state instanceof AllocatedOrderState)
-	        .onCommand (
-	            ReceiveOrder.class,
-	            cmd -> Effect ().reply (cmd.replyTo (),
-	                                    StatusReply.error ("Order already exists")))
-	        .onCommand (
-	            ReceiveOrderAllocations.class,
-	            cmd -> Effect ().noReply ())
-	        .onCommand (PackOrderAllocation.class, this::onPackAllocation)
-	        .onCommand (WrappedPackOrderAllocationResult.class, this::onPackAllocationResult)
-	        .onCommand (UpdateTracking.class, this::onUpdateTracking);
-	}
+    private CommandHandlerWithReplyBuilderByState<Command, Event, State, State>
+        allocatedOrderHandler ()
+    {
+        return newCommandHandlerWithReplyBuilder ()
+            .forState (state -> state instanceof AllocatedOrderState)
+            .onCommand (
+                ReceiveOrder.class,
+                cmd -> Effect ().reply (cmd.replyTo (),
+                                        StatusReply.error ("Order already exists")))
+            .onCommand (
+                ReceiveOrderAllocations.class,
+                cmd -> Effect ().noReply ())
+            .onCommand (PackOrderAllocation.class, this::onPackAllocation)
+            .onCommand (WrappedPackOrderAllocationResult.class, this::onPackAllocationResult)
+            .onCommand (UpdateTracking.class, this::onUpdateTracking);
+    }
 
 /**
   * Return default command handler. Only {@link FetchOrderDetails} is allowed.
@@ -738,15 +738,15 @@ public class Order
   * @return the default command handler
   */
 
-	private CommandHandlerWithReplyBuilderByState<Command, Event, State, State>
-	    defaultHandler ()
-	{
-	    return newCommandHandlerWithReplyBuilder ()
-	        .forAnyState ()
-	        .onCommand (FetchOrderDetails.class,
-	                    (state, cmd) -> Effect ().reply (cmd.replyTo (),
-	                                                     state.toOrderDetails ()));
-	}
+    private CommandHandlerWithReplyBuilderByState<Command, Event, State, State>
+        defaultHandler ()
+    {
+        return newCommandHandlerWithReplyBuilder ()
+            .forAnyState ()
+            .onCommand (FetchOrderDetails.class,
+                        (state, cmd) -> Effect ().reply (cmd.replyTo (),
+                                                         state.toOrderDetails ()));
+    }
 
 /**
   * Handles a new order. The order is persisted, order allocation is initiated, and an
@@ -757,26 +757,26 @@ public class Order
   * @return the reply effect
   */
 
-	private ReplyEffect<Event, State> onReceiveOrder (State state, ReceiveOrder cmd)
-	{
-	    if (cmd.customer () == null) {
-	        return Effect ().reply (cmd.replyTo (),
-	                                StatusReply.error ("Customer details must be supplied"));
-	    } else if (cmd.items () == null || cmd.items ().isEmpty ()) {
-	        return Effect ().reply (cmd.replyTo (),
-	                                StatusReply.error ("Order must contain at least one item"));
-	    } else {
-	        return Effect ().persist (new OrderReceived (_ident,
-	                                                     cmd.items (),
-	                                                     cmd.customer ()))
-	                        .thenRun (newState ->
-	                            _ctx.spawn (OrderAllocator.create (), _ident + "-allocator")
-	                                .tell (new OrderAllocator.Allocate (cmd.items (),
-	                                                                    cmd.customer (),
-	                                                                    _ctx.getSelf ())))
-	                        .thenReply (cmd.replyTo (), x -> StatusReply.ack ());
-	    }
-	}
+    private ReplyEffect<Event, State> onReceiveOrder (State state, ReceiveOrder cmd)
+    {
+        if (cmd.customer () == null) {
+            return Effect ().reply (cmd.replyTo (),
+                                    StatusReply.error ("Customer details must be supplied"));
+        } else if (cmd.items () == null || cmd.items ().isEmpty ()) {
+            return Effect ().reply (cmd.replyTo (),
+                                    StatusReply.error ("Order must contain at least one item"));
+        } else {
+            return Effect ().persist (new OrderReceived (_ident,
+                                                         cmd.items (),
+                                                         cmd.customer ()))
+                            .thenRun (newState ->
+                                _ctx.spawn (OrderAllocator.create (), _ident + "-allocator")
+                                    .tell (new OrderAllocator.Allocate (cmd.items (),
+                                                                        cmd.customer (),
+                                                                        _ctx.getSelf ())))
+                            .thenReply (cmd.replyTo (), x -> StatusReply.ack ());
+        }
+    }
 
 /**
   * Handles received order allocations. The order allocations are persisted.
@@ -786,16 +786,16 @@ public class Order
   * @return the reply effect
   */
 
-	private ReplyEffect<Event, State> onReceiveAllocations (State state, ReceiveOrderAllocations cmd)
-	{
-	    if (cmd.allocations () != null && !cmd.allocations ().isEmpty ()) {
-	        return Effect ().persist (new OrderAllocationsReceived (_ident,
-	                                                                cmd.allocations ()))
-	                        .thenNoReply ();
-	    } else {
-	        return Effect ().noReply ();
-	    }
-	}
+    private ReplyEffect<Event, State> onReceiveAllocations (State state, ReceiveOrderAllocations cmd)
+    {
+        if (cmd.allocations () != null && !cmd.allocations ().isEmpty ()) {
+            return Effect ().persist (new OrderAllocationsReceived (_ident,
+                                                                    cmd.allocations ()))
+                            .thenNoReply ();
+        } else {
+            return Effect ().noReply ();
+        }
+    }
 
 /**
   * Handles order allocation packing. The courier booking API is executed, and when a
@@ -806,96 +806,96 @@ public class Order
   * @return the reply effect
   */
 
-	private ReplyEffect<Event, State> onPackAllocation (State state, PackOrderAllocation cmd)
-	{
-	    if (cmd.allocationId () == null || cmd.allocationId ().isBlank ()) {
-	        return Effect ().reply (cmd.replyTo (),
-	                                StatusReply.error ("Pack items request must contain a valid allocation identifier"));
-	    } else if (state instanceof AllocatedOrderState allocated) {
-	        if (allocated.hasAllocation (cmd.allocationId ())) {
-	            if (allocated.getLatestAllocationStatus (cmd.allocationId ()) == Allocation.Status.ALLOCATED) {
-	                if (_bookingsInProgress == MAX_BOOKINGS_IN_PROGRESS) {
-	                    return Effect ().reply (cmd.replyTo (),
-	                        StatusReply.error ("Max " + MAX_BOOKINGS_IN_PROGRESS + " concurrent pack operations supported"));
-	                } else {
-	                    try {
-	                        Allocation allocation = allocated.getAllocation (cmd.allocationId ());
-	                        CourierBookingAPI booking =
-	                            CourierBookingAPI.getInstanceOrDefault (allocation.getCourier ());
-	                        CourierBookingHandler handler = booking.getBookingHandler();
-	                        Map<String,String> params = handler.getHTTPRequestParams (
-	                            _ident,
-	                            allocation,
-	                            allocated.customer ());
-	                        String uri = handler.getBookingURI (booking.getBaseURI (), params);
-	                        _bookingsInProgress++;
-	                        final CompletionStage<HttpResponse>
-	                            futureResponse = _http.singleRequest (HttpRequest.create (uri));
-	                        _ctx.pipeToSelf (
-	                            futureResponse,
-	                            (response, ex) -> {
-	                                if (ex != null) {
+    private ReplyEffect<Event, State> onPackAllocation (State state, PackOrderAllocation cmd)
+    {
+        if (cmd.allocationId () == null || cmd.allocationId ().isBlank ()) {
+            return Effect ().reply (cmd.replyTo (),
+                                    StatusReply.error ("Pack items request must contain a valid allocation identifier"));
+        } else if (state instanceof AllocatedOrderState allocated) {
+            if (allocated.hasAllocation (cmd.allocationId ())) {
+                if (allocated.getLatestAllocationStatus (cmd.allocationId ()) == Allocation.Status.ALLOCATED) {
+                    if (_bookingsInProgress == MAX_BOOKINGS_IN_PROGRESS) {
+                        return Effect ().reply (cmd.replyTo (),
+                            StatusReply.error ("Max " + MAX_BOOKINGS_IN_PROGRESS + " concurrent pack operations supported"));
+                    } else {
+                        try {
+                            Allocation allocation = allocated.getAllocation (cmd.allocationId ());
+                            CourierBookingAPI booking =
+                                CourierBookingAPI.getInstanceOrDefault (allocation.getCourier ());
+                            CourierBookingHandler handler = booking.getBookingHandler();
+                            Map<String,String> params = handler.getHTTPRequestParams (
+                                _ident,
+                                allocation,
+                                allocated.customer ());
+                            String uri = handler.getBookingURI (booking.getBaseURI (), params);
+                            _bookingsInProgress++;
+                            final CompletionStage<HttpResponse>
+                                futureResponse = _http.singleRequest (HttpRequest.create (uri));
+                            _ctx.pipeToSelf (
+                                futureResponse,
+                                (response, ex) -> {
+                                    if (ex != null) {
 // -- booking API failed
-	                                    return new WrappedPackOrderAllocationResult (
-	                                        cmd.allocationId (),
-	                                        new BookDeliveryFailure ("failed to book delivery: " + ex.getMessage ()),
-	                                        cmd.replyTo ());
-	                                } else {
-	                                    if (response.status ().equals (StatusCodes.OK)) {
+                                        return new WrappedPackOrderAllocationResult (
+                                            cmd.allocationId (),
+                                            new BookDeliveryFailure ("failed to book delivery: " + ex.getMessage ()),
+                                            cmd.replyTo ());
+                                    } else {
+                                        if (response.status ().equals (StatusCodes.OK)) {
 // -- booking API successful
-	                                        return
-	                                            response.entity ()
-	                                                    .toStrict (5000, _materializer)
-	                                                    .thenApply (entity -> {
-	                                                        try {
-	                                                            String responseBody = entity.getData ().utf8String ();
-	                                                            String trackingId = booking.getBookingHandler ().getTrackingId (responseBody);
-	                                                            return new WrappedPackOrderAllocationResult (
-	                                                                cmd.allocationId (),
-	                                                                new BookDeliverySuccess (trackingId),
-	                                                                cmd.replyTo ());
-	                                                        }
-	                                                        catch (CourierBookingHandlerException bookingEx) {
-	                                                            return new WrappedPackOrderAllocationResult (
-	                                                                cmd.allocationId (),
-	                                                                new BookDeliveryFailure ("failed to book delivery: " + bookingEx.getMessage ()),
-	                                                                cmd.replyTo ());
-	                                                        }
-	                                                    })
-	                                                    .toCompletableFuture ()
-	                                                    .join ();
-	                                    } else {
+                                            return
+                                                response.entity ()
+                                                        .toStrict (5000, _materializer)
+                                                        .thenApply (entity -> {
+                                                            try {
+                                                                String responseBody = entity.getData ().utf8String ();
+                                                                String trackingId = booking.getBookingHandler ().getTrackingId (responseBody);
+                                                                return new WrappedPackOrderAllocationResult (
+                                                                    cmd.allocationId (),
+                                                                    new BookDeliverySuccess (trackingId),
+                                                                    cmd.replyTo ());
+                                                            }
+                                                            catch (CourierBookingHandlerException bookingEx) {
+                                                                return new WrappedPackOrderAllocationResult (
+                                                                    cmd.allocationId (),
+                                                                    new BookDeliveryFailure ("failed to book delivery: " + bookingEx.getMessage ()),
+                                                                    cmd.replyTo ());
+                                                            }
+                                                        })
+                                                        .toCompletableFuture ()
+                                                        .join ();
+                                        } else {
 // -- booking API failed
-	                                        return new WrappedPackOrderAllocationResult (
-	                                            cmd.allocationId (),
-	                                            new BookDeliveryFailure ("failed to book delivery with status code " + response.status ()),
-	                                            cmd.replyTo ());
-	                                    }
-	                                }
-	                            });
-	                        return Effect ().noReply ();
-	                    }
-	                    catch (CourierBookingHandlerException bookingEx) {
-	                        return Effect ().reply (cmd.replyTo (),
-	                            StatusReply.error ("failed to book delivery: " + bookingEx.getMessage ()));
-	                    }
-	                }
-	            } else {
-	                return Effect ().reply (
-	                    cmd.replyTo (),
-	                    StatusReply.success (
-	                        new PackOrderAllocationResult (
-	                            allocated.getAllocation (cmd.allocationId ()).getTrackingId ())));
-	            }
-	        } else {
-	            return Effect ().reply (cmd.replyTo (),
-	                                    StatusReply.error ("Allocation not found"));
-	        }
-	    } else {
-	        return Effect ().reply (cmd.replyTo (),
-	                                StatusReply.error ("Order is not yet allocated"));
-	    }
-	}
+                                            return new WrappedPackOrderAllocationResult (
+                                                cmd.allocationId (),
+                                                new BookDeliveryFailure ("failed to book delivery with status code " + response.status ()),
+                                                cmd.replyTo ());
+                                        }
+                                    }
+                                });
+                            return Effect ().noReply ();
+                        }
+                        catch (CourierBookingHandlerException bookingEx) {
+                            return Effect ().reply (cmd.replyTo (),
+                                StatusReply.error ("failed to book delivery: " + bookingEx.getMessage ()));
+                        }
+                    }
+                } else {
+                    return Effect ().reply (
+                        cmd.replyTo (),
+                        StatusReply.success (
+                            new PackOrderAllocationResult (
+                                allocated.getAllocation (cmd.allocationId ()).getTrackingId ())));
+                }
+            } else {
+                return Effect ().reply (cmd.replyTo (),
+                                        StatusReply.error ("Allocation not found"));
+            }
+        } else {
+            return Effect ().reply (cmd.replyTo (),
+                                    StatusReply.error ("Order is not yet allocated"));
+        }
+    }
 
 /**
   * Completes the handling of order allocation packing, when the courier booking API
@@ -906,43 +906,43 @@ public class Order
   * @return the reply effect
   */
 
-	private ReplyEffect<Event, State> onPackAllocationResult (State state, WrappedPackOrderAllocationResult cmd)
-	{
-	    _bookingsInProgress--;
-	    if (state instanceof AllocatedOrderState allocated) {
-	        if (allocated.hasAllocation (cmd.allocationId ())) {
-	            if (allocated.getLatestAllocationStatus (cmd.allocationId ()) == Allocation.Status.ALLOCATED) {
-	                return switch (cmd.result) {
-	                case BookDeliverySuccess success ->
-	                    Effect ().persist (new OrderAllocationPacked (_ident,
-	                                                                  cmd.allocationId (),
-	                                                                  success.trackingId (),
-	                                                                  Instant.now ()))
-	                             .thenReply (
-	                                 cmd.replyTo (),
-	                                 newstate -> StatusReply.success (
-	                                     new PackOrderAllocationResult (success.trackingId ())));
-	                case BookDeliveryFailure failure ->
-	                    Effect ().reply (
-	                        cmd.replyTo (),
-	                        StatusReply.error ("failed to book delivery: " + failure.reason));
-	                };
-	            } else {
-	                return Effect ().reply (
-	                    cmd.replyTo (),
-	                    StatusReply.success (
-	                        new PackOrderAllocationResult (
-	                            allocated.getAllocation (cmd.allocationId ()).getTrackingId ())));
-	            }
-	        } else {
-	            return Effect ().reply (cmd.replyTo (),
-	                                    StatusReply.error ("Allocation not found"));
-	        }
-	    } else {
-	        return Effect ().reply (cmd.replyTo (),
-	                                StatusReply.error ("Order is not yet allocated"));
-	    }
-	}
+    private ReplyEffect<Event, State> onPackAllocationResult (State state, WrappedPackOrderAllocationResult cmd)
+    {
+        _bookingsInProgress--;
+        if (state instanceof AllocatedOrderState allocated) {
+            if (allocated.hasAllocation (cmd.allocationId ())) {
+                if (allocated.getLatestAllocationStatus (cmd.allocationId ()) == Allocation.Status.ALLOCATED) {
+                    return switch (cmd.result) {
+                    case BookDeliverySuccess success ->
+                        Effect ().persist (new OrderAllocationPacked (_ident,
+                                                                      cmd.allocationId (),
+                                                                      success.trackingId (),
+                                                                      Instant.now ()))
+                                 .thenReply (
+                                     cmd.replyTo (),
+                                     newstate -> StatusReply.success (
+                                         new PackOrderAllocationResult (success.trackingId ())));
+                    case BookDeliveryFailure failure ->
+                        Effect ().reply (
+                            cmd.replyTo (),
+                            StatusReply.error ("failed to book delivery: " + failure.reason));
+                    };
+                } else {
+                    return Effect ().reply (
+                        cmd.replyTo (),
+                        StatusReply.success (
+                            new PackOrderAllocationResult (
+                                allocated.getAllocation (cmd.allocationId ()).getTrackingId ())));
+                }
+            } else {
+                return Effect ().reply (cmd.replyTo (),
+                                        StatusReply.error ("Allocation not found"));
+            }
+        } else {
+            return Effect ().reply (cmd.replyTo (),
+                                    StatusReply.error ("Order is not yet allocated"));
+        }
+    }
 
 /**
   * Handles order allocation tracking update. Persists the new allocation state.
@@ -952,39 +952,39 @@ public class Order
   * @return the reply effect
   */
 
-	private ReplyEffect<Event, State> onUpdateTracking (State state, UpdateTracking cmd)
-	{
-	    if (cmd.allocationId () == null || cmd.allocationId ().isBlank ()) {
-	        return Effect ().reply (cmd.replyTo (),
-	                                StatusReply.error ("Tracking update request must contain a valid allocation identifier"));
-	    } else if (cmd.status () == null) {
-	        return Effect ().reply (cmd.replyTo (),
-	                                StatusReply.error ("Tracking update request must contain a valid status"));
-	    } else if (state instanceof AllocatedOrderState allocated) {
-	        if (allocated.hasAllocation (cmd.allocationId ())) {
-	            if (allocated.getLatestAllocationStatus (cmd.allocationId ()).ordinal () >= Allocation.Status.PACKED.ordinal () &&
-	                allocated.getLatestAllocationStatus (cmd.allocationId ()).ordinal () < cmd.status().ordinal ()) {
-	                return Effect ().persist (new TrackingUpdated (_ident,
-	                                                               cmd.allocationId (),
-	                                                               cmd.status (),
-	                                                               Instant.now ()))
-	                                .thenReply (cmd.replyTo (), x -> StatusReply.ack ());
-	            } else {
-	                return Effect ().reply (
-	                    cmd.replyTo (),
-	                    StatusReply.error ("Existing allocation status inconsistent with requested tracking status"));
-	            }
-	        } else {
-	            return Effect ().reply (
-	                cmd.replyTo (),
-	                StatusReply.error ("Allocation not found"));
-	        }
-	    } else {
-	        return Effect ().reply (
-	            cmd.replyTo (),
-	            StatusReply.error ("Order is not yet allocated"));
-	    }
-	}
+    private ReplyEffect<Event, State> onUpdateTracking (State state, UpdateTracking cmd)
+    {
+        if (cmd.allocationId () == null || cmd.allocationId ().isBlank ()) {
+            return Effect ().reply (cmd.replyTo (),
+                                    StatusReply.error ("Tracking update request must contain a valid allocation identifier"));
+        } else if (cmd.status () == null) {
+            return Effect ().reply (cmd.replyTo (),
+                                    StatusReply.error ("Tracking update request must contain a valid status"));
+        } else if (state instanceof AllocatedOrderState allocated) {
+            if (allocated.hasAllocation (cmd.allocationId ())) {
+                if (allocated.getLatestAllocationStatus (cmd.allocationId ()).ordinal () >= Allocation.Status.PACKED.ordinal () &&
+                    allocated.getLatestAllocationStatus (cmd.allocationId ()).ordinal () < cmd.status().ordinal ()) {
+                    return Effect ().persist (new TrackingUpdated (_ident,
+                                                                   cmd.allocationId (),
+                                                                   cmd.status (),
+                                                                   Instant.now ()))
+                                    .thenReply (cmd.replyTo (), x -> StatusReply.ack ());
+                } else {
+                    return Effect ().reply (
+                        cmd.replyTo (),
+                        StatusReply.error ("Existing allocation status inconsistent with requested tracking status"));
+                }
+            } else {
+                return Effect ().reply (
+                    cmd.replyTo (),
+                    StatusReply.error ("Allocation not found"));
+            }
+        } else {
+            return Effect ().reply (
+                cmd.replyTo (),
+                StatusReply.error ("Order is not yet allocated"));
+        }
+    }
 
 // ------------------------------------------------------------
 // Event handling logic
@@ -994,46 +994,46 @@ public class Order
   * Handle events.
   */
 
-	@Override
-	public EventHandler<State, Event> eventHandler () {
-	    var builder = newEventHandlerBuilder ();
-	    builder
-	        .forStateType (BlankState.class)
-	        .onEvent (OrderReceived.class, (state, evt) -> Order.NewOrderState.newOrder (evt.items (), evt.customer ()));
+    @Override
+    public EventHandler<State, Event> eventHandler () {
+        var builder = newEventHandlerBuilder ();
+        builder
+            .forStateType (BlankState.class)
+            .onEvent (OrderReceived.class, (state, evt) -> Order.NewOrderState.newOrder (evt.items (), evt.customer ()));
 
-	    builder
-	        .forStateType (NewOrderState.class)
-	        .onEvent (OrderAllocationsReceived.class, (state, evt) -> Order.AllocatedOrderState.allocatedOrder (evt.allocations (), state.customer ()));
+        builder
+            .forStateType (NewOrderState.class)
+            .onEvent (OrderAllocationsReceived.class, (state, evt) -> Order.AllocatedOrderState.allocatedOrder (evt.allocations (), state.customer ()));
 
-	    builder
-	        .forStateType (AllocatedOrderState.class)
-	        .onEvent(OrderAllocationPacked.class, (state, evt) -> Order.AllocatedOrderState.allocatedOrderWithNewTrackingId (state.allocations (), state.customer (), evt.allocationId (), evt.trackingId (), evt.timestamp ()))
-	        .onEvent(TrackingUpdated.class, (state, evt) -> Order.AllocatedOrderState.allocatedOrderWithNewStatus (state.allocations (), state.customer (), evt.allocationId (), evt.status (), evt.timestamp ()));
+        builder
+            .forStateType (AllocatedOrderState.class)
+            .onEvent(OrderAllocationPacked.class, (state, evt) -> Order.AllocatedOrderState.allocatedOrderWithNewTrackingId (state.allocations (), state.customer (), evt.allocationId (), evt.trackingId (), evt.timestamp ()))
+            .onEvent(TrackingUpdated.class, (state, evt) -> Order.AllocatedOrderState.allocatedOrderWithNewStatus (state.allocations (), state.customer (), evt.allocationId (), evt.status (), evt.timestamp ()));
 
-	    return builder.build ();
-	}
+        return builder.build ();
+    }
 
 /**
   * Handle recovery.
   */
 
-	@Override
-	public SignalHandler<State> signalHandler ()
-	{
-	    return newSignalHandlerBuilder ()
-	        .onSignal (
-	            RecoveryCompleted.instance (),
-	            state -> {
+    @Override
+    public SignalHandler<State> signalHandler ()
+    {
+        return newSignalHandlerBuilder ()
+            .onSignal (
+                RecoveryCompleted.instance (),
+                state -> {
 // -- if a new order was persisted, but failed to be assigned allocations, attempt to
 // -- create allocations again
-	                if (state instanceof NewOrderState newOrder) {
-	                    _ctx.spawn (OrderAllocator.create (), _ident + "-allocator")
-	                        .tell (new OrderAllocator.Allocate (newOrder.items (),
-                                   newOrder.customer (),
-                                   _ctx.getSelf ()));
-	                }
-	            })
-	        .build ();
-	}
+                    if (state instanceof NewOrderState newOrder) {
+                        _ctx.spawn (OrderAllocator.create (), _ident + "-allocator")
+                            .tell (new OrderAllocator.Allocate (newOrder.items (),
+                                                                newOrder.customer (),
+                                                                _ctx.getSelf ()));
+                    }
+                })
+            .build ();
+    }
 
 }
