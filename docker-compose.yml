@@ -1,0 +1,35 @@
+version: '2.2'
+services:
+  postgres-db:
+    image: postgres:latest
+    container_name: postgres-event-db
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_DB: order-service
+      POSTGRES_USER: order-service
+      POSTGRES_PASSWORD: order-service
+    healthcheck:
+      test: [ 'CMD', 'pg_isready', "-q", "-d", "order-service", "-U", "order-service" ]
+      interval: 5s
+      retries: 5
+      start_period: 5s
+      timeout: 5s
+
+  # this second PostgreSQL is used when running test
+  postgres-db-test:
+    image: postgres:latest
+    container_name: postgres-event-db_test
+    ports:
+      - 5433:5432
+    environment:
+      POSTGRES_DB: order-service-test
+      POSTGRES_USER: order-service
+      POSTGRES_PASSWORD: order-service
+    healthcheck:
+      test: [ 'CMD', 'pg_isready', "-q", "-d", "order-service-test", "-U", "order-service" ]
+      interval: 5s
+      retries: 5
+      start_period: 5s
+      timeout: 5s
+

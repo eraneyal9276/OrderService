@@ -1,0 +1,96 @@
+syntax = "proto3";
+
+package OrderService;
+
+option java_multiple_files = true;
+option java_package = "com.eraneyal.order.proto";
+
+// gRPC definition for OrderService
+
+service OrderService {
+  rpc ReceiveOrder(ReceiveOrderRequest) returns (ReceiveOrderResponse) {}
+  rpc PackItems(PackItemsRequest) returns (PackItemsResponse) {}
+  rpc TrackingUpdate(TrackUpdateRequest) returns (TrackUpdateResponse) {}
+  rpc FetchOrderDetails(OrderDetailsRequest) returns (OrderDetailsResponse) {}
+}
+
+message ReceiveOrderRequest {
+  string order_id = 1;
+  repeated Item items = 2;
+  Customer customer = 3;
+}
+
+message Item {
+  string item_id = 1;
+  string name = 2;
+  int32 quantity = 3;
+}
+
+message Customer {
+  string first_name = 1;
+  string last_name = 2;
+  Address address = 3;
+  string email = 4;
+  string mobile_phone = 5;
+}
+
+message Address {
+  string street = 1;
+  string city = 2;
+  string country = 3;
+  int32 zip_code = 4;
+}
+
+message ReceiveOrderResponse {
+  bool ok = 1;
+}
+
+message PackItemsRequest {
+  string order_id = 1;
+  string allocation_id = 2;
+}
+
+message PackItemsResponse {
+  bool ok = 1;
+}
+
+enum TrackingStatus {
+  PICKED_BY_COURIER = 0;
+  ENROUTE_TO_CUSTOMER = 1;
+  DELIVERED = 2;
+}
+
+message TrackUpdateRequest {
+  string order_id = 1;
+  string allocation_id = 2;
+  TrackingStatus status = 3;
+}
+
+message TrackUpdateResponse {
+  bool ok = 1;
+}
+
+message OrderDetailsRequest {
+  string order_id = 1;
+}
+
+message Status {
+  string type = 1;
+  string timestamp = 2;
+}
+
+message Allocation {
+  string allocation_id = 1;
+  string name = 2;
+  Address address = 3;
+  repeated Item items = 4;
+  string courier = 5;
+  string tracking_id = 6;
+  repeated Status statuses = 7;
+}
+
+message OrderDetailsResponse {
+  string order_id = 1;
+  repeated Allocation allocations = 2;
+  Customer customer = 3;
+}
