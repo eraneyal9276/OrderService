@@ -1,4 +1,32 @@
+# Note
+
+The structure of this project is based on the "Implementing Microservices with Akka"
+Akka tutorial (https://doc.akka.io/guide/microservices-tutorial/index.html), and more
+specifically on the Event Sourced Cart entity and the corresponding gRPC Cart service
+or that tutorial.
+
 # Running the order service
+
+* Install docker, docker compose and maven.
+
+* Start PostgreSQL DB, required for persistence of the event store. This also starts a container
+  that runs an Apache Tomcat instance that simulates two courier delivery booking APIs
+
+```
+docker-compose up -d
+```
+
+* Create the PostgreSQL tables:
+
+```
+docker exec -i postgres-event-db psql -U order-service -t < ddl-scripts/create_tables.sql
+```
+
+or
+
+```
+more ddl-scripts\create_tables.cql | docker exec -i postgres-event-db psql -U order-service
+```
 
 * Start a first node:
 
@@ -22,15 +50,15 @@ curl http://localhost:9101/ready
 
 ##Notes
 
-1. If you don't have grpcurl on your machine, and you have docker, you can use "docker run fullstorydev/grpcurl"
-instead of "grpcurl". In that case you also need to change 127.0.0.1 to host.docker.internal in order to communicate with the local service.
-2. If you are running the command in a Windows shell, you might have to escape the quotes. For example - """itemId""" instead of "itemId".
+1. If you don't have **grpcurl** on your machine, you can use **docker run fullstorydev/grpcurl**
+instead of **grpcurl**. In that case you also need to change **127.0.0.1** to **host.docker.internal** in the following examples in order to communicate with the local service.
+2. If you are running the command in a Windows shell, you might have to escape the quotes. For example - **"""itemId"""** instead of **"itemId"**.
 
 ##API examples
 
 ###1. Receive Order:
 
-	grpcurl -d '{"order_Id":"order1","items":[{"item_id":"234323","name":"coke","quantity":5},{"item_id":"353464","name":"sugar","quantity":3},{"item_id":"46758543","name":"bread","quantity":2}],"customer":{"first_name":"Eran","last_name":"Eyal","address":{"street":"Some Street 42","city":"Some City","zip_code":12345,"country":"Israel"},"email":"somebody@gmail.com","mobile_phone":"0521234567"}}' -plaintext 127.0.0.1:8101 OrderService.OrderService.ReceiveOrder
+	grpcurl -d '{"order_id":"order1","items":[{"item_id":"234323","name":"coke","quantity":5},{"item_id":"353464","name":"sugar","quantity":3},{"item_id":"46758543","name":"bread","quantity":2}], "customer":{"first_name":"Eran","last_name":"Eyal","address":{"street":"Some Street 42","city":"Some City","zip_code":12345,"country":"Israel"},"email":"somebody@gmail.com","mobile_phone":"0521234567"}}' -plaintext 127.0.0.1:8101 OrderService.OrderService.ReceiveOrder
 
 ###Successful Response:
 
@@ -70,7 +98,7 @@ instead of "grpcurl". In that case you also need to change 127.0.0.1 to host.doc
       "statuses": [
         {
           "type": "ALLOCATED",
-          "timestamp": "2024-07-25T11:16:41.718690900Z"
+          "timestamp": "2024-07-28T08:56:30.941376900Z"
         }
       ]
     },
@@ -99,7 +127,7 @@ instead of "grpcurl". In that case you also need to change 127.0.0.1 to host.doc
       "statuses": [
         {
           "type": "ALLOCATED",
-          "timestamp": "2024-07-25T11:16:41.718690900Z"
+          "timestamp": "2024-07-28T08:56:30.941376900Z"
         }
       ]
     }
@@ -154,15 +182,15 @@ instead of "grpcurl". In that case you also need to change 127.0.0.1 to host.doc
         }
       ],
       "courier": "DeliverIt",
-      "tracking_id": "211E60C2CE0245CAB93C5B0D81704B0C",
+      "tracking_id": "F711B1E2DD424E3ABD80DDFC88AC9264",
       "statuses": [
         {
           "type": "ALLOCATED",
-          "timestamp": "2024-07-25T11:16:41.718690900Z"
+          "timestamp": "2024-07-28T08:56:30.941376900Z"
         },
         {
           "type": "PACKED",
-          "timestamp": "2024-07-25T11:33:56.036335700Z"
+          "timestamp": "2024-07-28T09:10:08.288077700Z"
         }
       ]
     },
@@ -191,7 +219,7 @@ instead of "grpcurl". In that case you also need to change 127.0.0.1 to host.doc
       "statuses": [
         {
           "type": "ALLOCATED",
-          "timestamp": "2024-07-25T11:16:41.718690900Z"
+          "timestamp": "2024-07-28T08:56:30.941376900Z"
         }
       ]
     }
@@ -208,6 +236,7 @@ instead of "grpcurl". In that case you also need to change 127.0.0.1 to host.doc
     "email": "somebody@gmail.com",
     "mobile_phone": "0521234567"
   }
+}
 ```
 
 ###4. Tracking Update:
@@ -250,19 +279,19 @@ instead of "grpcurl". In that case you also need to change 127.0.0.1 to host.doc
         }
       ],
       "courier": "DeliverIt",
-      "tracking_id": "211E60C2CE0245CAB93C5B0D81704B0C",
+      "tracking_id": "F711B1E2DD424E3ABD80DDFC88AC9264",
       "statuses": [
         {
           "type": "ALLOCATED",
-          "timestamp": "2024-07-25T11:16:41.718690900Z"
+          "timestamp": "2024-07-28T08:56:30.941376900Z"
         },
         {
           "type": "PACKED",
-          "timestamp": "2024-07-25T11:33:56.036335700Z"
+          "timestamp": "2024-07-28T09:10:08.288077700Z"
         },
         {
           "type": "PICKED_BY_COURIER",
-          "timestamp": "2024-07-25T11:39:41.925289500Z"
+          "timestamp": "2024-07-28T09:12:45.428948400Z"
         }
       ]
     },
@@ -291,7 +320,7 @@ instead of "grpcurl". In that case you also need to change 127.0.0.1 to host.doc
       "statuses": [
         {
           "type": "ALLOCATED",
-          "timestamp": "2024-07-25T11:16:41.718690900Z"
+          "timestamp": "2024-07-28T08:56:30.941376900Z"
         }
       ]
     }
@@ -308,4 +337,5 @@ instead of "grpcurl". In that case you also need to change 127.0.0.1 to host.doc
     "email": "somebody@gmail.com",
     "mobile_phone": "0521234567"
   }
+}
 ```

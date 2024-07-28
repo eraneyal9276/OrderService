@@ -33,3 +33,9 @@ services:
       start_period: 5s
       timeout: 5s
 
+  # this runs a tomcat instance that simulates two courier delivery booking APIs
+  courier:
+    build: .
+    container_name: couriers
+    ports:
+      - 8080:8080

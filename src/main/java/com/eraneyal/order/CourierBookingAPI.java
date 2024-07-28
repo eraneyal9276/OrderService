@@ -108,14 +108,14 @@ public class CourierBookingAPI {
 			"FedEx",
 			new CourierBookingAPI (
 				"FedEx",
-				"http://localhost:8080/my-tomcat-test/fedex-book.jsp",
+				"http://localhost:8080/courier/fedex-book.jsp",
 				new FedExBookingHandlerImpl ()));
 
 		CourierBookingAPI._availableBookingAPIs.put (
 			"DeliverIt",
 			new CourierBookingAPI (
 				"DeliverIt",
-				"http://localhost:8080/my-tomcat-test/deliverit-book.jsp",
+				"http://localhost:8080/courier/deliverit-book.jsp",
 				new DeliverItBookingHandlerImpl ()));
 
 		CourierBookingAPI._availableBookingAPIs.put (
