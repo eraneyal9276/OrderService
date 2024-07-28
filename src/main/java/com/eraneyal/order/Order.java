@@ -649,15 +649,15 @@ public class Order
   * @return the command handler
   */
 
-	@Override
-	public CommandHandlerWithReply<Command, Event, State> commandHandler ()
-	{
-	    return newOrderHandler ()
-	        .orElse (existingOrderHandler ())
-	        .orElse (allocatedOrderHandler ())
-	        .orElse (defaultHandler ())
-	        .build ();
-	}
+    @Override
+    public CommandHandlerWithReply<Command, Event, State> commandHandler ()
+    {
+        return newOrderHandler ()
+            .orElse (existingOrderHandler ())
+            .orElse (allocatedOrderHandler ())
+            .orElse (defaultHandler ())
+            .build ();
+    }
 
 /**
   * Return command handler for new (empty) orders. Only {@link ReceiveOrder} is allowed.
@@ -665,11 +665,11 @@ public class Order
   * @return the command handler
   */
 
-	private CommandHandlerWithReplyBuilderByState<Command, Event, State, State>
-	    newOrderHandler ()
+    private CommandHandlerWithReplyBuilderByState<Command, Event, State, State>
+        newOrderHandler ()
     {
-	    return newCommandHandlerWithReplyBuilder ()
-	        .forState (state -> state instanceof BlankState)
+        return newCommandHandlerWithReplyBuilder ()
+            .forState (state -> state instanceof BlankState)
             .onCommand (ReceiveOrder.class, this::onReceiveOrder)
             .onCommand (
                 PackOrderAllocation.class,
