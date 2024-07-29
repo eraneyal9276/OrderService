@@ -13,7 +13,8 @@ public class CourierBookingHandlerException extends Exception
   * @param message the error message
   */
 
-    public CourierBookingHandlerException (String message) {
+    public CourierBookingHandlerException (String message)
+    {
         super (message);
     }
 
@@ -25,7 +26,8 @@ public class CourierBookingHandlerException extends Exception
   * @param cause the root cause of this exception
   */
 
-    public CourierBookingHandlerException (String message, Throwable cause) {
+    public CourierBookingHandlerException (String message, Throwable cause)
+    {
         super (message, cause);
     }
 

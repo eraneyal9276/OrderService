@@ -19,21 +19,22 @@ import org.slf4j.LoggerFactory;
 public class Main
 {
 
-	private static final Logger logger = LoggerFactory.getLogger (Main.class);
+    private static final Logger logger = LoggerFactory.getLogger (Main.class);
 
 /**
   * Starts the actor system and initializes the order service.
   */
 
-	public static void main (String[] args) throws Exception {
-		ActorSystem<Void> system = ActorSystem.create (Behaviors.empty (), "OrderService");
-		try {
-			init (system);
-		} catch (Exception e) {
-			logger.error ("Terminating due to initialization failure.", e);
-			system.terminate ();
-		}
-	}
+    public static void main (String[] args) throws Exception
+    {
+        ActorSystem<Void> system = ActorSystem.create (Behaviors.empty (), "OrderService");
+        try {
+            init (system);
+        } catch (Exception e) {
+            logger.error ("Terminating due to initialization failure.", e);
+            system.terminate ();
+        }
+    }
 
 /**
   * Initializes the Akka cluster and starts the gRPC server.
@@ -41,17 +42,18 @@ public class Main
   * @param system the actor system
   */
 
-	public static void init (ActorSystem<Void> system) {
-		AkkaManagement.get (system).start ();
-		ClusterBootstrap.get (system).start ();
+    public static void init (ActorSystem<Void> system)
+    {
+        AkkaManagement.get (system).start ();
+        ClusterBootstrap.get (system).start ();
 
-		Order.init (system);
+        Order.init (system);
 
-		Config config = system.settings ().config ();
-		String grpcInterface = config.getString ("order-service.grpc.interface");
-		int grpcPort = config.getInt ("order-service.grpc.port");
-		OrderService grpcService = new OrderServiceImpl (system);
-		OrderServer.start (grpcInterface, grpcPort, system, grpcService);
-	}
+        Config config = system.settings ().config ();
+        String grpcInterface = config.getString ("order-service.grpc.interface");
+        int grpcPort = config.getInt ("order-service.grpc.port");
+        OrderService grpcService = new OrderServiceImpl (system);
+        OrderServer.start (grpcInterface, grpcPort, system, grpcService);
+    }
 
 }

@@ -13,31 +13,31 @@ public final class Customer implements CborSerializable
   * Holds the customer's first name.
   */
 
-	private final String _firstName;
+    private final String _firstName;
 
 /**
   * Holds the customer's last name.
   */
 
-	private final String _lastName;
+    private final String _lastName;
 
 /**
   * Holds the customer's shipping address.
   */
 
-	private final Address _address;
+    private final Address _address;
 
 /**
   * Holds the customer's email address.
   */
 
-	private final String _email;
+    private final String _email;
 
 /**
   * Holds the customer's mobile phone number.
   */
 
-	private final String _mobilePhone;
+    private final String _mobilePhone;
 
 /**
   * Creates a new customer instance.
@@ -54,35 +54,35 @@ public final class Customer implements CborSerializable
   * 	  Such validations were not deemed crucial for this assignment.
   */
 
-	public Customer (
-		String firstName,
-		String lastName,
-		Address address,
-		String email,
-		String mobilePhone)
-	{
-		if (firstName == null || firstName.isBlank ()) {
-			throw new IllegalArgumentException ("Customer first name is missing or empty");
-		}
-		if (lastName == null || lastName.isBlank ()) {
-			throw new IllegalArgumentException ("Customer last name is missing or empty");
-		}
-		if (address == null) {
-			throw new IllegalArgumentException ("Customer address is missing");
-		}
-		if (email == null || email.isBlank ()) {
-			throw new IllegalArgumentException ("Customer email is missing or empty");
-		}
-		if (mobilePhone == null || mobilePhone.isBlank ()) {
-			throw new IllegalArgumentException ("Customer mobile phone is missing or empty");
-		}
+    public Customer (
+        String firstName,
+        String lastName,
+        Address address,
+        String email,
+        String mobilePhone)
+    {
+        if (firstName == null || firstName.isBlank ()) {
+            throw new IllegalArgumentException ("Customer first name is missing or empty");
+        }
+        if (lastName == null || lastName.isBlank ()) {
+            throw new IllegalArgumentException ("Customer last name is missing or empty");
+        }
+        if (address == null) {
+            throw new IllegalArgumentException ("Customer address is missing");
+        }
+        if (email == null || email.isBlank ()) {
+            throw new IllegalArgumentException ("Customer email is missing or empty");
+        }
+        if (mobilePhone == null || mobilePhone.isBlank ()) {
+            throw new IllegalArgumentException ("Customer mobile phone is missing or empty");
+        }
 
-		_firstName = firstName;
-		_lastName = lastName;
-		_address = address;
-		_email = email;
-		_mobilePhone = mobilePhone;
-	}
+        _firstName = firstName;
+        _lastName = lastName;
+        _address = address;
+        _email = email;
+        _mobilePhone = mobilePhone;
+    }
 
 /**
   * Returns the customer's first name.
@@ -90,10 +90,10 @@ public final class Customer implements CborSerializable
   * @return the customer's first name
   */
 
-	public String getFirstName ()
-	{
-		return _firstName;
-	}
+    public String getFirstName ()
+    {
+        return _firstName;
+    }
 
 /**
   * Returns the customer's last name.
@@ -101,10 +101,10 @@ public final class Customer implements CborSerializable
   * @return the customer's last name
   */
 
-	public String getLastName ()
-	{
-		return _lastName;
-	}
+    public String getLastName ()
+    {
+        return _lastName;
+    }
 
 /**
   * Returns the customer's shipping address.
@@ -112,10 +112,10 @@ public final class Customer implements CborSerializable
   * @return the customer's shipping address
   */
 
-	public Address getAddress ()
-	{
-		return _address;
-	}
+    public Address getAddress ()
+    {
+        return _address;
+    }
 
 /**
   * Returns the customer's email address.
@@ -123,10 +123,10 @@ public final class Customer implements CborSerializable
   * @return the customer's email address
   */
 
-	public String getEMail ()
-	{
-		return _email;
-	}
+    public String getEMail ()
+    {
+        return _email;
+    }
 
 /**
   * Returns the customer's mobile phone number.
@@ -134,9 +134,9 @@ public final class Customer implements CborSerializable
   * @return the customer's mobile phone number
   */
 
-	public String getMobilePhone ()
-	{
-		return _mobilePhone;
-	}
+    public String getMobilePhone ()
+    {
+        return _mobilePhone;
+    }
 
 }

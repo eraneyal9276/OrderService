@@ -19,58 +19,58 @@ public final class Allocation implements CborSerializable
   * Represents the status of an order allocation.
   */
 
-	public static enum Status {
-		NA,						// not applicable
-		CREATED,				// a newly created order without allocations
-		ALLOCATED, 				// allocation created
-		PACKED, 				// allocation items packed and booked for delivery
-		PICKED_BY_COURIER, 		// courier picked the allocation items for delivery
-		ENROUTE_TO_CUSTOMER, 	// courier is on the way to the customer
-		DELIVERED 				// allocation items were delivered to customer
-	}
+    public static enum Status {
+        NA,						// not applicable
+        CREATED,				// a newly created order without allocations
+        ALLOCATED, 				// allocation created
+        PACKED, 				// allocation items packed and booked for delivery
+        PICKED_BY_COURIER, 		// courier picked the allocation items for delivery
+        ENROUTE_TO_CUSTOMER, 	// courier is on the way to the customer
+        DELIVERED 				// allocation items were delivered to customer
+    }
 
 /**
   * Holds the allocation identifier.
   */
 
-	private final String _ident;
+    private final String _ident;
 
 /**
   * Holds the name of the location where the items will be collected and packed.
   */
 
-	private final String _name;
+    private final String _name;
 
 /**
   * Holds the address of the location where the items will be collected and packed.
   */
 
-	private final Address _address;
+    private final Address _address;
 
 /**
   * Holds the order items to be handled by this allocation.
   */
 
-	private final Map<String,OrderItem> _items;
+    private final Map<String,OrderItem> _items;
 
 /**
   * Holds the identifier of the courier that will be booked to deliver the items of this
   * allocation.
   */
 
-	private final String _courierId;
+    private final String _courier;
 
 /**
   * Holds the tracking identifier returned by the courier's booking API.
   */
 
-	private final String _trackingId;
+    private final String _tracking;
 
 /**
   * Holds the processing statuses of this allocation, indexed by timestamp.
   */
 
-	private final SortedMap<Instant,Status> _statuses;
+    private final SortedMap<Instant,Status> _statuses;
 
 /**
   * Creates a new allocation instance.
@@ -84,23 +84,23 @@ public final class Allocation implements CborSerializable
   * @param statuses the processing statuses of this allocation
   */
 
-	public Allocation (
-		String ident,
-		String name,
-		Address address,
-		Map<String,OrderItem> items,
-		String courierId,
-		String trackingId,
-		Map<Instant,Status> statuses)
-	{
-		_ident = ident;
-		_name = name;
-		_address = address;
-		_items = new HashMap<> (items);
-		_courierId = courierId;
-		_trackingId = trackingId;
-		_statuses = new TreeMap<> (statuses);
-	}
+    public Allocation (
+        String ident,
+        String name,
+        Address address,
+        Map<String,OrderItem> items,
+        String courierId,
+        String trackingId,
+        Map<Instant,Status> statuses)
+    {
+        _ident = ident;
+        _name = name;
+        _address = address;
+        _items = new HashMap<> (items);
+        _courier = courierId;
+        _tracking = trackingId;
+        _statuses = new TreeMap<> (statuses);
+    }
 
 /**
   * Returns the allocation identifier.
@@ -108,10 +108,10 @@ public final class Allocation implements CborSerializable
   * @return the allocation identifier
   */
 
-	public String getID ()
-	{
-		return _ident;
-	}
+    public String getID ()
+    {
+        return _ident;
+    }
 
 /**
   * Returns the name of the location where the items will be collected and packed.
@@ -119,10 +119,10 @@ public final class Allocation implements CborSerializable
   * @return the name of the location where the items will be collected and packed
   */
 
-	public String getName ()
-	{
-		return _name;
-	}
+    public String getName ()
+    {
+        return _name;
+    }
 
 /**
   * Returns the address of the location where the items will be collected and packed.
@@ -130,10 +130,10 @@ public final class Allocation implements CborSerializable
   * @return the address of the location where the items will be collected and packed
   */
 
-	public Address getAddress ()
-	{
-		return _address;
-	}
+    public Address getAddress ()
+    {
+        return _address;
+    }
 
 /**
   * Returns the order items to be handled by this allocation.
@@ -141,10 +141,10 @@ public final class Allocation implements CborSerializable
   * @return the order items to be handled by this allocation
   */
 
-	public Map<String,OrderItem> getItems ()
-	{
-		return new HashMap<> (_items);
-	}
+    public Map<String,OrderItem> getItems ()
+    {
+        return new HashMap<> (_items);
+    }
 
 /**
   * Returns the identifier of the courier that will be booked to deliver the items of this
@@ -153,10 +153,10 @@ public final class Allocation implements CborSerializable
   * @return the courier identifier
   */
 
-	public String getCourier ()
-	{
-		return _courierId;
-	}
+    public String getCourier ()
+    {
+        return _courier;
+    }
 
 /**
   * Returns the tracking identifier returned by the courier's booking API.
@@ -164,10 +164,10 @@ public final class Allocation implements CborSerializable
   * @return the tracking identifier returned by the courier's booking API
   */
 
-	public String getTrackingId ()
-	{
-		return _trackingId;
-	}
+    public String getTrackingID ()
+    {
+        return _tracking;
+    }
 
 /**
   * Returns the processing statuses of this allocation, indexed and ordered by timestamp.
@@ -176,10 +176,10 @@ public final class Allocation implements CborSerializable
   * 		timestamp
   */
 
-	public SortedMap<Instant,Status> getStatuses ()
-	{
-		return new TreeMap<> (_statuses);
-	}
+    public SortedMap<Instant,Status> getStatuses ()
+    {
+        return new TreeMap<> (_statuses);
+    }
 
 /**
   * Returns the latest (most current) processing status of this allocation.
@@ -187,16 +187,16 @@ public final class Allocation implements CborSerializable
   * @return the latest (most current) processing status of this allocation
   */
 
-	public Status getLatestAllocationStatus ()
-	{
-		Status latest = Status.NA;
+    public Status getLatestAllocationStatus ()
+    {
+        Status latest = Status.NA;
 
-		if (!_statuses.isEmpty ()) {
-			latest = _statuses.lastEntry ()
-							  .getValue ();
-		}
+        if (!_statuses.isEmpty ()) {
+            latest = _statuses.lastEntry ()
+                              .getValue ();
+        }
 
-		return latest;
-	}
+        return latest;
+    }
 
 }

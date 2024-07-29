@@ -13,25 +13,25 @@ public final class Address implements CborSerializable
   * Holds the street name and number.
   */
 
-	private final String _street;
+    private final String _street;
 
 /**
   * Holds the city.
   */
 
-	private final String _city;
+    private final String _city;
 
 /**
   * Hold the country.
   */
 
-	private final String _country;
+    private final String _country;
 
 /**
   * Holds the zip code.
   */
 
-	private final int _zipCode;
+    private final int _zipCode;
 
 /**
   * Creates a new address instances.
@@ -47,26 +47,26 @@ public final class Address implements CborSerializable
   * 	  Such validations were not deemed crucial for this assignment.
   */
 
-	public Address (String street, String city, String country, int zipCode)
-	{
-		if (street == null || street.isBlank ()) {
-			throw new IllegalArgumentException ("Address street is missing or empty");
-		}
-		if (city == null || city.isBlank ()) {
-			throw new IllegalArgumentException ("Address city is missing or empty");
-		}
-		if (country == null || country.isBlank ()) {
-			throw new IllegalArgumentException ("Address country is missing or empty");
-		}
-		if (zipCode < 0) {
-			throw new IllegalArgumentException ("ZIP code must be non-negative");
-		}
+    public Address (String street, String city, String country, int zipCode)
+    {
+        if (street == null || street.isBlank ()) {
+            throw new IllegalArgumentException ("Address street is missing or empty");
+        }
+        if (city == null || city.isBlank ()) {
+            throw new IllegalArgumentException ("Address city is missing or empty");
+        }
+        if (country == null || country.isBlank ()) {
+            throw new IllegalArgumentException ("Address country is missing or empty");
+        }
+        if (zipCode < 0) {
+            throw new IllegalArgumentException ("ZIP code must be non-negative");
+        }
 
-		_street = street;
-		_city = city;
-		_country = country;
-		_zipCode = zipCode;
-	}
+        _street = street;
+        _city = city;
+        _country = country;
+        _zipCode = zipCode;
+    }
 
 /**
   * Returns the street name and number.
@@ -74,10 +74,10 @@ public final class Address implements CborSerializable
   * @return the street name and number
   */
 
-	public String getStreet ()
-	{
-		return _street;
-	}
+    public String getStreet ()
+    {
+        return _street;
+    }
 
 /**
   * Returns the city.
@@ -85,10 +85,10 @@ public final class Address implements CborSerializable
   * @return the city
   */
 
-	public String getCity ()
-	{
-		return _city;
-	}
+    public String getCity ()
+    {
+        return _city;
+    }
 
 /**
   * Returns the country.
@@ -96,10 +96,10 @@ public final class Address implements CborSerializable
   * @return the country
   */
 
-	public String getCountry ()
-	{
-		return _country;
-	}
+    public String getCountry ()
+    {
+        return _country;
+    }
 
 /**
   * Returns the zip code.
@@ -107,9 +107,9 @@ public final class Address implements CborSerializable
   * @return the zip code
   */
 
-	public int getZipCode ()
-	{
-		return _zipCode;
-	}
+    public int getZipCode ()
+    {
+        return _zipCode;
+    }
 
 }

@@ -10,35 +10,49 @@ import java.util.Map;
 public class CourierBookingAPI {
 
 /**
+  * Holds the courier identifier representing the default courier.
+  */
+
+    public static final String _DEFAULT = "default";
+
+/**
+  * Holds a hard-coded static registry of courier APIs.
+  */
+
+    private static Map<String, CourierBookingAPI> _availableBookingAPIs;
+
+/**
   * Holds the courier identifier.
   */
 
-	private final String _courierId;
+    private final String _ident;
 
 /**
   * Holds the base URI of the booking API.
   */
 
-	private final String _baseURI;
+    private final String _baseUri;
 
 /**
   * Holds the booking handler.
   */
 
-	private final CourierBookingHandler _bookingHandler;
+    private final CourierBookingHandler _bookingHandler;
 
 /**
-  * Holds the courier identifier representing the default courier.
+  * Constructs a new courier booking API.
+  * <p>
+  * @param ident the courier identifier
+  * @param baseUri the base URI of the API
+  * @param bookingHandler the booking API handler
   */
 
-	public static final String _DEFAULT = "default";
-
-	public CourierBookingAPI (String courierId, String baseUri, CourierBookingHandler  bookingHandler)
-	{
-		_courierId = courierId;
-		_baseURI = baseUri;
-		_bookingHandler = bookingHandler;
-	}
+    public CourierBookingAPI (String ident, String baseUri, CourierBookingHandler  bookingHandler)
+    {
+        _ident = ident;
+        _baseUri = baseUri;
+        _bookingHandler = bookingHandler;
+    }
 
 /**
   * Returns the courier identifier.
@@ -46,10 +60,10 @@ public class CourierBookingAPI {
   * @return the courier identifier
   */
 
-	public String getCourierId ()
-	{
-		return _courierId;
-	}
+    public String getID ()
+    {
+        return _ident;
+    }
 
 /**
   * Returns the base URI of the booking API.
@@ -57,10 +71,10 @@ public class CourierBookingAPI {
   * @return the base URI of the booking API
   */
 
-	public String getBaseURI ()
-	{
-		return _baseURI;
-	}
+    public String getBaseURI ()
+    {
+        return _baseUri;
+    }
 
 /**
   * Returns the booking handler.
@@ -68,10 +82,10 @@ public class CourierBookingAPI {
   * @return the booking handler
   */
 
-	public CourierBookingHandler getBookingHandler ()
-	{
-		return _bookingHandler;
-	}
+    public CourierBookingHandler getBookingHandler ()
+    {
+        return _bookingHandler;
+    }
 
 /**
   * Returns the booking API matching the passed courier identifier, or the default booking
@@ -86,49 +100,43 @@ public class CourierBookingAPI {
   * 		booking API if the requested courier identifier is not registered
   */
 
-	public static CourierBookingAPI getInstanceOrDefault (String courierId)
-	{
-		CourierBookingAPI api = CourierBookingAPI._availableBookingAPIs.get (courierId);
+    public static CourierBookingAPI getInstanceOrDefault (String courierId)
+    {
+        CourierBookingAPI api = CourierBookingAPI._availableBookingAPIs.get (courierId);
 
-		if (api == null) {
-			api = CourierBookingAPI._availableBookingAPIs.get (CourierBookingAPI._DEFAULT);
-		}
+        if (api == null) {
+            api = CourierBookingAPI._availableBookingAPIs.get (CourierBookingAPI._DEFAULT);
+        }
 
-		return api;
-	}
+        return api;
+    }
 
-/**
-  * Holds a hard-coded static registry of courier APIs.
-  */
-
-	private static Map<String, CourierBookingAPI> _availableBookingAPIs;
-
-	static {
+    static {
 
 // -- initialize a hard-coded static registry of supported booking APIs.
-		CourierBookingAPI._availableBookingAPIs = new HashMap<> ();
-	
-		CourierBookingAPI._availableBookingAPIs.put (
-			"FedEx",
-			new CourierBookingAPI (
-				"FedEx",
-				"http://localhost:8080/courier/fedex-book.jsp",
-				new FedExBookingHandlerImpl ()));
+        CourierBookingAPI._availableBookingAPIs = new HashMap<> ();
 
-		CourierBookingAPI._availableBookingAPIs.put (
-			"DeliverIt",
-			new CourierBookingAPI (
-				"DeliverIt",
-				"http://localhost:8080/courier/deliverit-book.jsp",
-				new DeliverItBookingHandlerImpl ()));
+        CourierBookingAPI._availableBookingAPIs.put (
+            "FedEx",
+            new CourierBookingAPI (
+                "FedEx",
+                "http://localhost:8080/courier/fedex-book.jsp",
+                new FedExBookingHandlerImpl ()));
 
-		CourierBookingAPI._availableBookingAPIs.put (
-			CourierBookingAPI._DEFAULT,
-			new CourierBookingAPI (
-				CourierBookingAPI._DEFAULT,
-				"http://www.example.com",
-				new FakeBookingHandlerImpl ()));
+        CourierBookingAPI._availableBookingAPIs.put (
+            "DeliverIt",
+            new CourierBookingAPI (
+                "DeliverIt",
+                "http://localhost:8080/courier/deliverit-book.jsp",
+                new DeliverItBookingHandlerImpl ()));
 
-	}
+        CourierBookingAPI._availableBookingAPIs.put (
+            CourierBookingAPI._DEFAULT,
+            new CourierBookingAPI (
+                CourierBookingAPI._DEFAULT,
+                "http://www.example.com",
+                new FakeBookingHandlerImpl ()));
+
+    }
 
 }

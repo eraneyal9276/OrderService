@@ -17,7 +17,7 @@ public class FakeBookingHandlerImpl extends CourierBookingHandlerImpl {
 /**
   * Returns the passed order details an HTTP requests parameters.
   * <p>
-  * @param orderId the order identifier
+  * @param order the order identifier
   * @param allocation the allocation details of the entire order or a subset of the order
   * @param customer the customer details
   * @return the passed order details an HTTP requests parameters
@@ -25,12 +25,15 @@ public class FakeBookingHandlerImpl extends CourierBookingHandlerImpl {
   * 		   request parameters
   */
 
-	@Override
-	public Map<String, String> getHTTPRequestParams (String orderId, Allocation allocation, Customer customer)
-		throws CourierBookingHandlerException
-	{
-		return new HashMap<> ();
-	}
+    @Override
+    public Map<String, String> getHTTPRequestParams (
+        String order,
+        Allocation allocation,
+        Customer customer)
+        throws CourierBookingHandlerException
+    {
+        return new HashMap<> ();
+    }
 
 /**
   * Returns the tracking identifier returned from the third-party courier API.
@@ -40,11 +43,11 @@ public class FakeBookingHandlerImpl extends CourierBookingHandlerImpl {
   * @exception CourierBookingHandlerException in case of any failures to parse the response
   */
 
-	@Override
-	public String getTrackingId (String response)
-		throws CourierBookingHandlerException
-	{
-		return UUID.randomUUID ().toString ();
-	}
+    @Override
+    public String getTrackingID (String response)
+        throws CourierBookingHandlerException
+    {
+        return UUID.randomUUID ().toString ();
+    }
 
 }

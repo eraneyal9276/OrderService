@@ -16,12 +16,13 @@ import java.util.Map;
   * 		authentication token should be passed in the headers).
   */
 
-public interface CourierBookingHandler {
+public interface CourierBookingHandler
+{
 
 /**
   * Returns the passed order details an HTTP requests parameters.
   * <p>
-  * @param orderId the order identifier
+  * @param order the order identifier
   * @param allocation the allocation details of the entire order or a subset of the order
   * @param customer the customer details
   * @return the passed order details an HTTP requests parameters
@@ -29,8 +30,11 @@ public interface CourierBookingHandler {
   * 		   request parameters
   */
 
-	public Map<String,String> getHTTPRequestParams (String orderId, Allocation allocation, Customer customer)
-    	throws CourierBookingHandlerException;
+    public Map<String,String> getHTTPRequestParams (
+        String order,
+        Allocation allocation,
+        Customer customer)
+        throws CourierBookingHandlerException;
 
 /**
   * Returns the complete URI for the HTTP GET request.
@@ -41,8 +45,8 @@ public interface CourierBookingHandler {
   * @exception CourierBookingHandlerException in case of failure to construct the URI
   */
 
-	public String getBookingURI (String baseAddr, Map<String,String> params)
-		throws CourierBookingHandlerException;
+    public String getBookingURI (String baseAddr, Map<String,String> params)
+        throws CourierBookingHandlerException;
 
 /**
   * Returns the tracking identifier returned from the third-party courier API.
@@ -52,7 +56,7 @@ public interface CourierBookingHandler {
   * @exception CourierBookingHandlerException in case of any failures to parse the response
   */
 
-	public String getTrackingId (String response)
-		throws CourierBookingHandlerException;
+    public String getTrackingID (String response)
+        throws CourierBookingHandlerException;
 
 }

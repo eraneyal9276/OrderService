@@ -26,7 +26,7 @@ public class OrderAllocator extends AbstractBehavior<OrderAllocator.Command>
   * Represents the commands supported by this actor.
   */
 
-	public sealed interface Command {}
+    public sealed interface Command {}
 
 /**
   * Represents a command to allocate order items for a given customer.
@@ -36,8 +36,8 @@ public class OrderAllocator extends AbstractBehavior<OrderAllocator.Command>
   * @param replyTo a reference to the Order entity that will receive the allocations
   */
 
-	record Allocate (Map<String,OrderItem> items, Customer customer, ActorRef<Order.Command> replyTo)
-	implements Command {}
+    record Allocate (Map<String,OrderItem> items, Customer customer, ActorRef<Order.Command> replyTo)
+    implements Command {}
 
 /**
   * Returns a factory for a behavior.
@@ -45,10 +45,10 @@ public class OrderAllocator extends AbstractBehavior<OrderAllocator.Command>
   * @return a factory for a behavior
   */
 
-	public static Behavior<Command> create ()
-	{
-		return Behaviors.setup (context -> new OrderAllocator (context));
-	}
+    public static Behavior<Command> create ()
+    {
+        return Behaviors.setup (context -> new OrderAllocator (context));
+    }
 
 /**
   * Creates a new instance.
@@ -56,21 +56,21 @@ public class OrderAllocator extends AbstractBehavior<OrderAllocator.Command>
   * @param context the actor context
   */
 
-	private OrderAllocator (ActorContext<Command> context)
-	{
-		super (context);
-	}
+    private OrderAllocator (ActorContext<Command> context)
+    {
+        super (context);
+    }
 
 /**
   * Determines how messages to this actor are processed.
   */
 
-	@Override
-	public Receive<Command> createReceive () {
-		return newReceiveBuilder ()
-				.onMessage (OrderAllocator.Allocate.class, this::onAllocate)
-				.build ();
-	}
+    @Override
+    public Receive<Command> createReceive () {
+        return newReceiveBuilder ()
+                .onMessage (OrderAllocator.Allocate.class, this::onAllocate)
+                .build ();
+    }
 
 /**
   * Processes a command to allocate ordered items for a given customer.
@@ -87,44 +87,44 @@ public class OrderAllocator extends AbstractBehavior<OrderAllocator.Command>
   * @return the new behavior for follow-up messages
   */
 
-	private Behavior<Command> onAllocate (OrderAllocator.Allocate command)
-	{
-		Map<String,Allocation> allocations = new HashMap<> ();
-		Map<String,OrderItem> items = command.items ();
+    private Behavior<Command> onAllocate (OrderAllocator.Allocate command)
+    {
+        Map<String,Allocation> allocations = new HashMap<> ();
+        Map<String,OrderItem> items = command.items ();
 // -- NOTE: though we are not using the customer in this simulation, a real allocation
 // --		logic will probably use the customer's address to find the optimal allocation
 // --       site and courier service
-		Customer customer = command.customer ();
+        Customer customer = command.customer ();
 
-		if (items != null && items.size() > 0 && customer != null) {
-			if (items.size () <= 1 || Math.random () < 0.5) {
+        if (items != null && items.size() > 0 && customer != null) {
+            if (items.size () <= 1 || Math.random () < 0.5) {
 // -- create a single allocation for all items
-				Allocation one = new AllocationBuilder ().setId (1)
-													 	 .setItems (items)
-													 	 .build ();
-				allocations.put (one.getID (), one);
-			} else {
+                Allocation one = new AllocationBuilder ().setID (1)
+                                                         .setItems (items)
+                                                         .build ();
+                allocations.put (one.getID (), one);
+            } else {
 // -- split the items into two allocations
-				Map.Entry<String,OrderItem> first = items.entrySet ().iterator ().next ();
-				items = new HashMap<> (items);
-				items.remove (first.getKey ());
+                Map.Entry<String,OrderItem> first = items.entrySet ().iterator ().next ();
+                items = new HashMap<> (items);
+                items.remove (first.getKey ());
 // -- a first allocation for the first item
-				Allocation one = new AllocationBuilder ().setId (1)
-													 	 .setItems (Map.of (first.getKey (),
-													 			 			first.getValue ()))
-													 	 .build ();
-				allocations.put (one.getID (), one);
+                Allocation one = new AllocationBuilder ().setID (1)
+                                                         .setItems (Map.of (first.getKey (),
+                                                                            first.getValue ()))
+                                                         .build ();
+                allocations.put (one.getID (), one);
 // -- a second allocation for the remaining items
-				Allocation two = new AllocationBuilder ().setId (2)
-													 	 .setItems (items)
-													 	 .build ();
-				allocations.put (two.getID (), two);
-			}
+                Allocation two = new AllocationBuilder ().setID (2)
+                                                         .setItems (items)
+                                                         .build ();
+                allocations.put (two.getID (), two);
+            }
 // -- send the allocations to the order entity
-			command.replyTo ().tell (new Order.ReceiveOrderAllocations (allocations));
-		}
+            command.replyTo ().tell (new Order.ReceiveOrderAllocations (allocations));
+        }
 
 // -- the actor should be stopped after the allocations are returned to the order entity
-		return Behaviors.stopped ();
-	}
+        return Behaviors.stopped ();
+    }
 }

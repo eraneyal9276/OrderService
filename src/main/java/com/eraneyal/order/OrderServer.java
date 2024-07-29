@@ -28,7 +28,7 @@ public final class OrderServer
   * Create a new instance.
   */
 
-	private OrderServer () {}
+    private OrderServer () {}
 
 /**
   * Starts the HTTP server.
@@ -39,35 +39,35 @@ public final class OrderServer
   * @param grpcService the gRPC services implementation
   */
 
-	static void start (String host, int port, ActorSystem<?> system, OrderService grpcService)
-	{
-		@SuppressWarnings ("unchecked")
-		Function<HttpRequest, CompletionStage<HttpResponse>> service =
-			ServiceHandler.concatOrNotFound (
-				OrderServiceHandlerFactory.create (grpcService, system),
-				// ServerReflection enabled to support grpcurl without import-path and proto parameters
-				ServerReflection.create (
-					Collections.singletonList (OrderService.description), system));
+    static void start (String host, int port, ActorSystem<?> system, OrderService grpcService)
+    {
+        @SuppressWarnings ("unchecked")
+        Function<HttpRequest, CompletionStage<HttpResponse>> service =
+            ServiceHandler.concatOrNotFound (
+                OrderServiceHandlerFactory.create (grpcService, system),
+                // ServerReflection enabled to support grpcurl without import-path and proto parameters
+                ServerReflection.create (
+                    Collections.singletonList (OrderService.description), system));
 
-		CompletionStage<ServerBinding> bound =
-			Http.get (system).newServerAt (host, port).bind (service);
+        CompletionStage<ServerBinding> bound =
+            Http.get (system).newServerAt (host, port).bind (service);
 
-		bound.whenComplete (
-			(binding, ex) -> {
-				if (binding != null) {
-					binding.addToCoordinatedShutdown (Duration.ofSeconds (3), system);
-					InetSocketAddress address = binding.localAddress ();
-					system
-						.log ()
-						.info (
-							"Order online at gRPC server {}:{}",
-							address.getHostString (),
-							address.getPort ());
-				} else {
-					system.log ().error ("Failed to bind gRPC endpoint, terminating system", ex);
-					system.terminate ();
-				}
-			});
-	}
+        bound.whenComplete (
+            (binding, ex) -> {
+                if (binding != null) {
+                    binding.addToCoordinatedShutdown (Duration.ofSeconds (3), system);
+                    InetSocketAddress address = binding.localAddress ();
+                    system
+                        .log ()
+                        .info (
+                            "Order online at gRPC server {}:{}",
+                            address.getHostString (),
+                            address.getPort ());
+                } else {
+                    system.log ().error ("Failed to bind gRPC endpoint, terminating system", ex);
+                    system.terminate ();
+                }
+            });
+    }
 
 }

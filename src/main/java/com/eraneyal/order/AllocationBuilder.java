@@ -7,33 +7,34 @@ import java.util.Map;
   * A builder for generating Order.Allocation instances based on hard-coded templates.
   */
 
-public class AllocationBuilder {
+public class AllocationBuilder
+{
 
 /**
   * Holds a hard-coded static registry of allocations.
   */
 
-	private static Allocation[] _allocations;
+    private static Allocation[] _allocations;
 
 /**
   * Holds the allocation identifier.
   */
 
-	private int _ident;
+    private int _ident;
 
 /**
   * Holds the order items.
   */
 
-	private Map<String,OrderItem> _items;
+    private Map<String,OrderItem> _items;
 
 /**
   * Creates a new builder instance.
   */
 
-	public AllocationBuilder ()
-	{
-	}
+    public AllocationBuilder ()
+    {
+    }
 
 /**
   * Sets the allocation identifier.
@@ -42,12 +43,12 @@ public class AllocationBuilder {
   * @return the builder instance
   */
 
-	public AllocationBuilder setId (int ident)
-	{
-		_ident = ident;
+    public AllocationBuilder setID (int ident)
+    {
+        _ident = ident;
 
-		return this;
-	}
+        return this;
+    }
 
 /**
   * Sets the items of the allocations.
@@ -56,12 +57,12 @@ public class AllocationBuilder {
   * @return the builder instance
   */
 
-	public AllocationBuilder setItems (Map<String,OrderItem> items)
-	{
-		_items = items;
+    public AllocationBuilder setItems (Map<String,OrderItem> items)
+    {
+        _items = items;
 
-		return this;
-	}
+        return this;
+    }
 
 /**
   * Returns a new Order.Allocation instance.
@@ -69,41 +70,41 @@ public class AllocationBuilder {
   * @return a new Order.Allocation instance
   */
 
-	public Allocation build ()
-	{
-		Allocation template = AllocationBuilder._allocations[_ident % AllocationBuilder._allocations.length];
+    public Allocation build ()
+    {
+        Allocation template = AllocationBuilder._allocations[_ident % AllocationBuilder._allocations.length];
 
-		return new Allocation (
-			Integer.toString (_ident),
-			template.getName (),
-			template.getAddress (),
-			_items,
-			template.getCourier (),
-			null,
-			Map.of (Instant.now (), Allocation.Status.ALLOCATED));
-	}
+        return new Allocation (
+            Integer.toString (_ident),
+            template.getName (),
+            template.getAddress (),
+            _items,
+            template.getCourier (),
+            null,
+            Map.of (Instant.now (), Allocation.Status.ALLOCATED));
+    }
 
-	static {
+    static {
 
 // -- initialize the static registry
-		AllocationBuilder._allocations = new Allocation[2];
-		AllocationBuilder._allocations[0] = new Allocation (
-			"1",
-			"TLV Warehouse",
-			new Address ("Namir 15", "Tel Aviv", "Israel", 12345),
-			Map.of ("dummy-id", new OrderItem ("dummy-id", "name", 1)),
-			"FedEx",
-			null,
-			Map.of (Instant.now (), Allocation.Status.ALLOCATED));
-		AllocationBuilder._allocations[1] = new Allocation (
-			"2",
-			"Outlet Store",
-			new Address ("Bialik 89", "Ramat Gan", "Israel", 64722),
-			Map.of ("dummy-id", new OrderItem ("dummy-id", "name", 1)),
-			"DeliverIt",
-			null,
-			Map.of (Instant.now (), Allocation.Status.ALLOCATED));
+        AllocationBuilder._allocations = new Allocation[2];
+        AllocationBuilder._allocations[0] = new Allocation (
+            "1",
+            "TLV Warehouse",
+            new Address ("Namir 15", "Tel Aviv", "Israel", 12345),
+            Map.of ("dummy-id", new OrderItem ("dummy-id", "name", 1)),
+            "FedEx",
+            null,
+            Map.of (Instant.now (), Allocation.Status.ALLOCATED));
+        AllocationBuilder._allocations[1] = new Allocation (
+            "2",
+            "Outlet Store",
+            new Address ("Bialik 89", "Ramat Gan", "Israel", 64722),
+            Map.of ("dummy-id", new OrderItem ("dummy-id", "name", 1)),
+            "DeliverIt",
+            null,
+            Map.of (Instant.now (), Allocation.Status.ALLOCATED));
 
-	}
+    }
 
 }
