@@ -12,7 +12,8 @@ import java.util.Map;
   * parsing the responses for FedEx booking API.
   */
 
-public class FedExBookingHandlerImpl extends CourierBookingHandlerImpl {
+public class FedExBookingHandlerImpl extends CourierBookingHandlerImpl
+{
 
 /**
   * Returns the passed order details an HTTP requests parameters.

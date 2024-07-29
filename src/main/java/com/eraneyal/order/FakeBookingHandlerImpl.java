@@ -12,7 +12,8 @@ import java.util.UUID;
   * status code, such as http://www.example.com
   */
 
-public class FakeBookingHandlerImpl extends CourierBookingHandlerImpl {
+public class FakeBookingHandlerImpl extends CourierBookingHandlerImpl
+{
 
 /**
   * Returns the passed order details an HTTP requests parameters.

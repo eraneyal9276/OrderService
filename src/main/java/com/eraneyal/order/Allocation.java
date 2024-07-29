@@ -20,13 +20,13 @@ public final class Allocation implements CborSerializable
   */
 
     public static enum Status {
-        NA,						// not applicable
-        CREATED,				// a newly created order without allocations
-        ALLOCATED, 				// allocation created
-        PACKED, 				// allocation items packed and booked for delivery
-        PICKED_BY_COURIER, 		// courier picked the allocation items for delivery
-        ENROUTE_TO_CUSTOMER, 	// courier is on the way to the customer
-        DELIVERED 				// allocation items were delivered to customer
+        NA,                     // not applicable
+        CREATED,                // a newly created order without allocations
+        ALLOCATED,              // allocation created
+        PACKED,                 // allocation items packed and booked for delivery
+        PICKED_BY_COURIER,      // courier picked the allocation items for delivery
+        ENROUTE_TO_CUSTOMER,    // courier is on the way to the customer
+        DELIVERED               // allocation items were delivered to customer
     }
 
 /**

@@ -7,7 +7,8 @@ import java.util.Map;
   * Represents a courier API for booking order delivery.
   */
 
-public class CourierBookingAPI {
+public class CourierBookingAPI
+{
 
 /**
   * Holds the courier identifier representing the default courier.
