@@ -79,8 +79,8 @@ public final class Allocation implements CborSerializable
   * @param name the name of the location where the items will be collected and packed
   * @param address the address of the location where the items will be collected and packed
   * @param items the order items to be handled by this allocation
-  * @param courierId the courier identifier
-  * @param trackingId the tracking identifier
+  * @param courier the courier identifier
+  * @param tracking the tracking identifier
   * @param statuses the processing statuses of this allocation
   */
 
@@ -89,16 +89,16 @@ public final class Allocation implements CborSerializable
         String name,
         Address address,
         Map<String,OrderItem> items,
-        String courierId,
-        String trackingId,
+        String courier,
+        String tracking,
         Map<Instant,Status> statuses)
     {
         _ident = ident;
         _name = name;
         _address = address;
         _items = new HashMap<> (items);
-        _courier = courierId;
-        _tracking = trackingId;
+        _courier = courier;
+        _tracking = tracking;
         _statuses = new TreeMap<> (statuses);
     }
 

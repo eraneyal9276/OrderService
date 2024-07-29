@@ -215,7 +215,7 @@ public class OrderTest
         Order.PackOrderAllocationResult packed = result3.reply ().getValue ();
         assertTrue (result3.event () instanceof Order.OrderAllocationPacked);
         Order.OrderAllocationPacked packedEvent = (Order.OrderAllocationPacked) result3.event ();
-        String trackingID = packedEvent.trackingId ();
+        String trackingID = packedEvent.trackingID ();
         assertTrue (result3.state () instanceof Order.AllocatedOrderState);
         Order.AllocatedOrderState state = (Order.AllocatedOrderState) result3.state ();
         assertEquals (Allocation.Status.PACKED,
@@ -223,7 +223,7 @@ public class OrderTest
         assertEquals (trackingID,
                       state.getAllocation (allocationID).getTrackingID ());
         assertEquals (trackingID,
-                      packed.trackingId ());
+                      packed.trackingID ());
     }
 
 /**
@@ -236,7 +236,7 @@ public class OrderTest
         CommandResultWithReply<Order.Command,Order.Event,Order.State,StatusReply<Order.PackOrderAllocationResult>>
             result =
                 eventSourcedTestKit.runCommand (
-                    replyTo -> new Order.PackOrderAllocation ("dummyAllocationId", replyTo));
+                    replyTo -> new Order.PackOrderAllocation ("dummyAllocationID", replyTo));
         assertTrue (result.reply ().isError ());
         assertTrue (result.hasNoEvents ());
     }
@@ -308,8 +308,8 @@ public class OrderTest
         assertTrue (result3.reply ().isSuccess ());
         assertTrue (result3.hasNoEvents ());
         assertEquals (
-            result2.reply ().getValue ().trackingId (),
-            result3.reply ().getValue ().trackingId ());
+            result2.reply ().getValue ().trackingID (),
+            result3.reply ().getValue ().trackingID ());
     }
 
 /**
@@ -412,7 +412,7 @@ public class OrderTest
         CommandResultWithReply<Order.Command,Order.Event,Order.State,StatusReply<Done>>
             result =
                 eventSourcedTestKit.runCommand (
-                    replyTo -> new Order.UpdateTracking ("dummyAllocationId", Allocation.Status.DELIVERED, replyTo));
+                    replyTo -> new Order.UpdateTracking ("dummyAllocationID", Allocation.Status.DELIVERED, replyTo));
         assertTrue (result.reply ().isError ());
         assertTrue (result.hasNoEvents ());
     }

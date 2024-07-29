@@ -95,14 +95,14 @@ public class CourierBookingAPI {
   * 	  APIs were used in some production software, I would initialize them either from
   * 	  configuration files or from a DB table (depending on the required flexibility).
   * <p>
-  * @param courierId the courier identifier
+  * @param ident the courier identifier
   * @return the booking API matching the passed courier identifier, or the default
   * 		booking API if the requested courier identifier is not registered
   */
 
-    public static CourierBookingAPI getInstanceOrDefault (String courierId)
+    public static CourierBookingAPI getInstanceOrDefault (String ident)
     {
-        CourierBookingAPI api = CourierBookingAPI._availableBookingAPIs.get (courierId);
+        CourierBookingAPI api = CourierBookingAPI._availableBookingAPIs.get (ident);
 
         if (api == null) {
             api = CourierBookingAPI._availableBookingAPIs.get (CourierBookingAPI._DEFAULT);

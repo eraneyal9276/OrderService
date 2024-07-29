@@ -116,7 +116,7 @@ public final class OrderServiceImpl implements OrderService
         CompletionStage<PackItemsResponse> response =
             reply.thenApply (
                 result -> PackItemsResponse.newBuilder ()
-                                           .setTrackingId (result.trackingId ())
+                                           .setTrackingId (result.trackingID ())
                                            .build ());
 
         return convertError (response);
